@@ -1,0 +1,63 @@
+---
+title: "1.ReadinData"
+output: html_document
+---
+
+```{r}
+
+#install.packages('Seurat')
+library(Seurat)
+dir <- "Results/1ReadinData"
+dir.create(dir)
+
+I_S1.data <- Read10X(data.dir= "Q:/CCI-T-AG-Henneke/Mitarbeiter/Florens/scRNA/wt_irf/raw/I/outs/per_sample_outs/sample1/count/sample_feature_bc_matrix")
+I_S1 <- CreateSeuratObject(counts = I_S1.data$`Gene Expression`, project = "I-S1", min.cells = 3, min.features = 200)
+#Add meta data
+#What sample?
+sample.info = data.frame(sample = sample(x=c("I-S1"),size=length(colnames(x=I_S1)),replace=TRUE),row.names=colnames(I_S1))
+I_S1 = AddMetaData(object=I_S1, metadata= sample.info, col.name='sample.info')
+
+
+
+I_S2.data <- Read10X(data.dir= "Q:/CCI-T-AG-Henneke/Mitarbeiter/Florens/scRNA/wt_irf/raw/I/outs/per_sample_outs/sample2/count/sample_feature_bc_matrix")
+I_S2 <- CreateSeuratObject(counts = I_S2.data$`Gene Expression`, project = "I-S2", min.cells = 3, min.features = 200)
+
+I_S3.data <- Read10X(data.dir= "Q:/CCI-T-AG-Henneke/Mitarbeiter/Florens/scRNA/wt_irf/raw/I/outs/per_sample_outs/sample3/count/sample_feature_bc_matrix")
+I_S3 <- CreateSeuratObject(counts = I_S3.data$`Gene Expression`, project = "I-S3", min.cells = 3, min.features = 200)
+
+I <- merge(I_S1, y = c(I_S2, I_S3), add.cell.ids = c("I_S1", "I_S2", "I_S3"), project = "I")
+I <- AddMetaData(object = I, metadata = rep("I", length=nrow(I@meta.data)),col.name = 'Experiment')
+#How many cells per replicate?
+table(I$orig.ident)
+
+#head(I_S1@meta.data)
+
+saveRDS(I, paste0(dir,"/I.RDS"))
+saveRDS(I_S1, paste0(dir,"/I_S1.RDS"))
+saveRDS(I_S2, paste0(dir,"/I_S2.RDS"))
+saveRDS(I_S3, paste0(dir,"/I_S3.RDS"))
+
+
+
+N_S1.data <- Read10X(data.dir= "Q:/CCI-T-AG-Henneke/Mitarbeiter/Florens/scRNA/wt_irf/raw/N/outs/per_sample_outs/sample1/count/sample_feature_bc_matrix")
+N_S1 <- CreateSeuratObject(counts = N_S1.data$`Gene Expression`, project = "N-S1", min.cells = 3, min.features = 200)
+
+N_S2.data <- Read10X(data.dir= "Q:/CCI-T-AG-Henneke/Mitarbeiter/Florens/scRNA/wt_irf/raw/N/outs/per_sample_outs/sample2/count/sample_feature_bc_matrix")
+N_S2 <- CreateSeuratObject(counts = N_S2.data$`Gene Expression`, project = "N-S2", min.cells = 3, min.features = 200)
+
+N_S3.data <- Read10X(data.dir= "Q:/CCI-T-AG-Henneke/Mitarbeiter/Florens/scRNA/wt_irf/raw/N/outs/per_sample_outs/sample3/count/sample_feature_bc_matrix")
+N_S3 <- CreateSeuratObject(counts = N_S3.data$`Gene Expression`, project = "N-S3", min.cells = 3, min.features = 200)
+
+N <- merge(N_S1, y = c(N_S2, N_S3), add.cell.ids = c("N_S1", "N_S2", "N_S3"), project = "N")
+N <- AddMetaData(object = N, metadata = rep("N", length=nrow(N@meta.data)),col.name = 'Experiment')
+#How many cells per replicate?
+table(N$orig.ident)
+
+
+saveRDS(N, paste0(dir,"/N.RDS"))
+saveRDS(N_S1, paste0(dir,"/N_S1.RDS"))
+saveRDS(N_S2, paste0(dir,"/N_S2.RDS"))
+saveRDS(N_S3, paste0(dir,"/N_S3.RDS"))
+```
+
+```
