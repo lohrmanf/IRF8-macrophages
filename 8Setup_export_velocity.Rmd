@@ -1,0 +1,168 @@
+---
+title: "Setup cluster import velocity"
+output: html_document
+date: '2022-10-26'
+---
+
+```{r setup, include=FALSE}
+
+#first experiment, orig.idents mac-wt and mac-irf8
+rm(list = ls())
+
+library(Seurat)
+library(ggplot2)
+library(Matrix)
+
+dir <- "Results/Velocyto-files"
+dir.create(dir)
+
+mac <- readRDS("Results/2.3Int_all/all_data.RDS")
+
+mac.wt1 <- subset(x=mac, subset=Experiment == "WT")
+mac.irf1 <- subset(x=mac, subset=Experiment == "IRF8ko")
+saveRDS(mac.wt1, paste0(dir,"/mac.wt1.RDS"))
+saveRDS(mac.irf1, paste0(dir,"/mac.irf1.RDS"))
+
+#wt
+# save metadata table:
+mac.wt1$barcode <- colnames(mac.wt1)
+mac.wt1$UMAP_1 <- mac.wt1@reductions$umap@cell.embeddings[,1]
+mac.wt1$UMAP_2 <- mac.wt1@reductions$umap@cell.embeddings[,2]
+write.csv(mac.wt1@meta.data, file=paste0(dir,"/mac.wt1.metadata.csv"), quote = F, row.names=F)
+
+# write expression counts matrix
+counts_matrix <- GetAssayData(mac.wt1, assay='RNA', slot='counts')
+writeMM(counts_matrix, file=paste0(dir, '/mac.wt1.counts.mtx'))
+
+# write dimensionality reduction matrix, in this example case pca matrix
+write.csv(mac.wt1@reductions$pca@cell.embeddings, file=paste0(dir, '/mac.wt1.pca.csv'), quote=F, row.names=F)
+
+# write gene names
+write.table(data.frame('gene'=rownames(counts_matrix)),file=paste0(dir, '/mac.wt1.gene_names.csv'), quote=F,row.names=F,col.names=F)
+
+#irf8
+# save metadata table:
+mac.irf1$barcode <- colnames(mac.irf1)
+mac.irf1$UMAP_1 <- mac.irf1@reductions$umap@cell.embeddings[,1]
+mac.irf1$UMAP_2 <- mac.irf1@reductions$umap@cell.embeddings[,2]
+write.csv(mac.irf1@meta.data, file=paste0(dir,"/mac.irf1.metadata.csv"), quote = F, row.names=F)
+
+# write expression counts matrix
+counts_matrix <- GetAssayData(mac.irf1, assay='RNA', slot='counts')
+writeMM(counts_matrix, file=paste0(dir, '/mac.irf1.counts.mtx'))
+
+# write dimensionality reduction matrix, in this example case pca matrix
+write.csv(mac.irf1@reductions$pca@cell.embeddings, file=paste0(dir, '/mac.irf1.pca.csv'), quote=F, row.names=F)
+
+# write gene names
+write.table(data.frame('gene'=rownames(counts_matrix)),file=paste0(dir, '/mac.irf1.gene_names.csv'), quote=F,row.names=F,col.names=F)
+
+```
+
+## R Markdown
+```{r}
+#second Experiment: With Intron/Exon data available
+
+mac.wt2 <- subset(x=mac.combined, subset= Experiment == "N")
+mac.irf2 <- subset(x=mac.combined, subset=Experiment == "I")
+saveRDS(mac.wt2, paste0(dir,"/mac.wt2.RDS"))
+saveRDS(mac.irf2, paste0(dir,"/mac.irf2.RDS"))
+
+#wt
+# save metadata table:
+mac.wt2$barcode <- colnames(mac.wt2)
+mac.wt2$UMAP_1 <- mac.wt2@reductions$umap@cell.embeddings[,1]
+mac.wt2$UMAP_2 <- mac.wt2@reductions$umap@cell.embeddings[,2]
+write.csv(mac.wt2@meta.data, file=paste0(dir,"/mac.wt2.metadata.csv"), quote = F, row.names=F)
+
+# write expression counts matrix
+counts_matrix <- GetAssayData(mac.wt2, assay='RNA', slot='counts')
+writeMM(counts_matrix, file=paste0(dir, '/mac.wt2.counts.mtx'))
+
+# write dimensionality reduction matrix, in this example case pca matrix
+write.csv(mac.wt2@reductions$pca@cell.embeddings, file=paste0(dir, '/mac.wt2.pca.csv'), quote=F, row.names=F)
+
+# write gene names
+write.table(data.frame('gene'=rownames(counts_matrix)),file=paste0(dir, '/mac.wt2.gene_names.csv'), quote=F,row.names=F,col.names=F)
+
+#irf8
+# save metadata table:
+mac.irf2$barcode <- colnames(mac.irf2)
+mac.irf2$UMAP_1 <- mac.irf2@reductions$umap@cell.embeddings[,1]
+mac.irf2$UMAP_2 <- mac.irf2@reductions$umap@cell.embeddings[,2]
+write.csv(mac.irf2@meta.data, file=paste0(dir,"/mac.irf2.metadata.csv"), quote = F, row.names=F)
+
+# write expression counts matrix
+counts_matrix <- GetAssayData(mac.irf2, assay='RNA', slot='counts')
+writeMM(counts_matrix, file=paste0(dir, '/mac.irf2.counts.mtx'))
+
+# write dimensionality reduction matrix, in this example case pca matrix
+write.csv(mac.irf2@reductions$pca@cell.embeddings, file=paste0(dir, '/mac.irf2.pca.csv'), quote=F, row.names=F)
+
+# write gene names
+write.table(data.frame('gene'=rownames(counts_matrix)),file=paste0(dir, '/mac.irf2.gene_names.csv'), quote=F,row.names=F,col.names=F)
+
+```
+
+
+```{r}
+
+#all data
+rm(list = ls())
+
+library(Seurat)
+library(ggplot2)
+library(Matrix)
+
+dir <- "Results/Velocyto-files"
+dir.create(dir)
+
+mac <- readRDS("Results/2.3Int_all/all_data.RDS")
+
+mac.wt <- subset(x=mac, subset=Experiment2 == "WT")
+mac.irf <- subset(x=mac, subset=Experiment2 == "IRF8ko")
+saveRDS(mac.wt, paste0(dir,"/mac.wt.RDS"))
+saveRDS(mac.irf, paste0(dir,"/mac.irf.RDS"))
+
+
+#wt
+# save metadata table:
+mac.wt$barcode <- colnames(mac.wt)
+mac.wt$UMAP_1 <- mac.wt@reductions$umap@cell.embeddings[,1]
+mac.wt$UMAP_2 <- mac.wt@reductions$umap@cell.embeddings[,2]
+write.csv(mac.wt@meta.data, file=paste0(dir,"/mac.wt.metadata.csv"), quote = F, row.names=F)
+
+# write expression counts matrix
+counts_matrix <- GetAssayData(mac.wt, assay='RNA', slot='counts')
+writeMM(counts_matrix, file=paste0(dir, '/mac.wt.counts.mtx'))
+
+# write dimensionality reduction matrix, in this example case pca matrix
+write.csv(mac.wt@reductions$pca@cell.embeddings, file=paste0(dir, '/mac.wt.pca.csv'), quote=F, row.names=F)
+
+# write gene names
+write.table(data.frame('gene'=rownames(counts_matrix)),file=paste0(dir, '/mac.wt.gene_names.csv'), quote=F,row.names=F,col.names=F)
+
+#irf8
+
+# save metadata table:
+mac.irf$barcode <- colnames(mac.irf)
+mac.irf$UMAP_1 <- mac.irf@reductions$umap@cell.embeddings[,1]
+mac.irf$UMAP_2 <- mac.irf@reductions$umap@cell.embeddings[,2]
+write.csv(mac.irf@meta.data, file=paste0(dir,"/mac.irf.metadata.csv"), quote = F, row.names=F)
+
+# write expression counts matrix
+counts_matrix <- GetAssayData(mac.irf, assay='RNA', slot='counts')
+writeMM(counts_matrix, file=paste0(dir, '/mac.irf.counts.mtx'))
+
+# write dimensionality reduction matrix, in this example case pca matrix
+write.csv(mac.irf@reductions$pca@cell.embeddings, file=paste0(dir, '/mac.irf.pca.csv'), quote=F, row.names=F)
+
+# write gene names
+write.table(data.frame('gene'=rownames(counts_matrix)),file=paste0(dir, '/mac.irf.gene_names.csv'), quote=F,row.names=F,col.names=F)
+
+
+```
+
+## Including Plots
+
+

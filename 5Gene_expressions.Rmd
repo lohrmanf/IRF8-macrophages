@@ -1,0 +1,186 @@
+---
+title: "Gen expressions"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+
+
+library(Seurat)
+library(ggplot2)
+
+dir <- "Results/Gene_expressions"
+dir.create(dir)
+
+macs <- readRDS("Results/2.3Int_all/all_data.RDS")
+DefaultAssay(macs) <- "RNA"
+
+
+list.chemokines<- c("Cxcl1", "Cxcl2", "Cxcl5", "Cxcl9", "Cxcl10", "Cxcl12", "Cxcl13", "Cxcl14", "Cxcl16", "Ccl2", "Ccl3", "Ccl4", "Ccl5", "Ccl7", "Ccl12", "Ccl8", "Ccl11", "Ccl9", "Ccl17", "Ccl19", "Ccl22", "Ccl6", "Ccl24", "Ccl25", "Ccl27a", "Cx3cl1")
+
+list.chemoreceptors <- c("Ccr1", "Ccr2", "Ccr3", "Ccr5", "Ccr7", "Ccr9", "Ccr10", "Cxcr2", "Cxcr3", "Cxcr4", "Cxcr5", "Cxcr6", "Gpr35", "Xcr1", "Cx3cr1", "Ackr1", "Ackr3", "Ackr4")
+
+surfacemarkers <- c("Cd68","Cd209d", "Cd209a", "Clec10a", "Cd36", "Mrc1", "Cd209b", "Fcgrt", "Cd209c", "Cd209g", "Marco", "Cd209e", "Cd209f", "Clec14a", "Colec12", "Fcer2a", "Clec4b2", "Clec4g", "Cx3cr1", "Fcrla", "Fcer1a", "Mrc2", "Clec2g", "Clec4b1", "Csf1r", "Clec11a", "Clec4a4", "Clec16a", "Kit", "Clec1b", "Scara3", "Clec4a2", "Clec3b", "Ptprcap", "Fcgr3", "Scarb2", "Ly6c1", "Fcgr2b", "Clec4a1", "Clec4n", "Clec4a3", "Clec2d", "Fcgr4", "Clec4d", "Clec4e", "Itgam", "Clec2i", "Fcer1g", "Clec5a", "Fcrlb", "Msr1", "Csf2rb2", "Ly6c2", "Clec1a", "Fcgr1", "Scarb1", "Ptprc", "Csf2rb", "Clec12a", "Itgax", "Cd74", "Ccr2")
+
+list1 <- c("Csf1r","Csf2rb", "Cd14", "Fcer1g", "Cd68", "Mrc1")
+list2 <- c("Tyrobp", "Ighd", "Cd3e", "Il1r2", "Cpa3", "Flt3")
+list3 <- c("Ly6c2", "Ccr2", "Ms4a3", "Cd74", "Cx3cr1", "Tgfbr1" )
+list4 <- c("Il1b", "Il6", "Il10", "Il18", "Tnf", "Nos2")
+list5 <- c("Nlrp3", "Nfkbia", "Csf1", "Csf2", "Irg1", "Cd80")
+list6 <- c("Tlr1", "Tlr2", "Tlr3", "Tlr4", "Tlr5", "Tlr6")
+list7 <- c("Cd9", "Lyve1", "Egr2", "Slc11a1", "Apoe", "Abca1")
+
+FeaturePlot(macs, order=T, features= list1, pt.size = 1,  split.by = "Experiment2", cols= c("grey", "dark red"))
+ggsave(paste0(dir,"/list1.pdf"), height=30, width=10)
+FeaturePlot(macs, order=T, features= list2, pt.size = 1,  split.by = "Experiment2", cols= c("grey", "dark red"))
+ggsave(paste0(dir,"/list2.pdf"), height=30, width=10)
+FeaturePlot(macs, order=T, features= list3, pt.size = 1,  split.by = "Experiment2", cols= c("grey", "dark red"))
+ggsave(paste0(dir,"/list3.pdf"), height=30, width=10)
+FeaturePlot(macs, order=T, features= list4, pt.size = 1,  split.by = "Experiment2", cols= c("grey", "dark red"))
+ggsave(paste0(dir,"/list4.pdf"), height=30, width=10)
+FeaturePlot(macs, order=T, features= list5, pt.size = 1,  split.by = "Experiment2", cols= c("grey", "dark red"))
+ggsave(paste0(dir,"/list5.pdf"), height=30, width=10)
+FeaturePlot(macs, order=T, features= list6, pt.size = 1,  split.by = "Experiment2", cols= c("grey", "dark red"))
+ggsave(paste0(dir,"/list6.pdf"), height=30, width=10)
+FeaturePlot(macs, order=T, features= list7, pt.size = 1,  split.by = "Experiment2", cols= c("grey", "dark red"))
+ggsave(paste0(dir,"/list7.pdf"), height=30, width=10)
+
+FeaturePlot(macs, order=T, features= list.chemokines, pt.size = 1,  split.by = "Experiment2", cols= c("grey", "dark red"))
+ggsave(paste0(dir,"/list.chemokines.pdf"), height=length(list.chemokines)*5, width=10, limitsize=F)
+FeaturePlot(macs, order=T, features= list.chemoreceptors, pt.size = 1,  split.by = "Experiment2", cols= c("grey", "dark red"))
+ggsave(paste0(dir,"/list.chemoreceptors.pdf"), height=length(list.chemoreceptors)*5, width=10, limitsize=F)
+FeaturePlot(macs, order=T, features= list.surfacemarkers, pt.size = 1,  split.by = "Experiment2", cols= c("grey", "dark red"))
+ggsave(paste0(dir,"/list.surfacemarkers.pdf"), height=length(list.surfacemarkers)*5, width=10, limitsize=F)
+
+
+#single genes
+
+FeaturePlot(macs, order=T, features= "Irf8", pt.size = 1,  split.by = "Experiment2", cols= c("grey", "dark red"))
+ggsave(paste0(dir,"/Irf8.pdf"), height=5, width=10)
+
+FeaturePlot(macs, order=T, features= "Ly6c2", pt.size = 1,  split.by = "Experiment2", cols= c("grey", "dark red"))
+ggsave(paste0(dir,"/Ccr2.pdf"), height=3, width=6)
+
+FeaturePlot(macs, order=T, features= "Clec4b1", pt.size = 1,  split.by = "Experiment2", cols= c("grey", "dark red"))
+ggsave(paste0(dir,"/Clec4b1.pdf"), height=3, width=6)
+
+FeaturePlot(macs, order=T, features= "Lyve1", pt.size = 1,  split.by = "Experiment2", cols= c("grey", "dark red"))
+ggsave(paste0(dir,"/Lyve1.pdf"), height=3, width=6)
+
+FeaturePlot(macs, order=T, features= "Csf2rb", pt.size = 1,  split.by = "Experiment2", cols= c("grey", "dark red"))
+ggsave(paste0(dir,"/Csf2rb.pdf"), height=3, width=6)
+
+FeaturePlot(macs, order=T, features= "Csf1r", pt.size = 1,  split.by = "Experiment2", cols= c("grey", "dark red"))
+ggsave(paste0(dir,"/Csf2rb.pdf"), height=3, width=6)
+
+FeaturePlot(macs, order=T, features= "Zbtb46", pt.size = 1,  pt.size = 1,  split.by = "Experiment2", cols= c("grey", "dark red"))
+ggsave(paste0(dir,"/Zbtb46.pdf"), height=3, width=6)
+
+FeaturePlot(macs, order=T, features= "Ly6c2", pt.size = 1,  split.by = "Experiment2", cols= c("grey", "dark red"))
+ggsave(paste0(dir,"/Ly6c2.pdf"), height=3, width=6)
+
+FeaturePlot(macs, order=T, features= "Mrc1", pt.size = 1,  split.by = "Experiment2", cols= c("grey", "dark red"))
+ggsave(paste0(dir,"/Mrc1.pdf"), height=3, width=6)
+
+FeaturePlot(macs, order=T, features= "Cd4", pt.size = 1,  split.by = "Experiment2", cols= c("grey", "dark red"))
+ggsave(paste0(dir,"/Cd4.pdf"), height=3, width=6)
+
+FeaturePlot(macs, order=T, features= "Cx3cr1", pt.size = 1,  split.by = "Experiment2", cols= c("grey", "dark red"))
+ggsave(paste0(dir,"/Cx3cr1.pdf"), height=3, width=6)
+
+FeaturePlot(macs, order=T, features= "Il1b", pt.size = 1,  split.by = "Experiment2", cols= c("grey", "dark red"))
+ggsave(paste0(dir,"/Il1b.pdf"), height=3, width=6)
+
+FeaturePlot(macs, order=T, features= "Il10", pt.size = 1,  split.by = "Experiment2", cols= c("grey", "dark red"))
+ggsave(paste0(dir,"/Il10.pdf"), height=3, width=6)
+
+FeaturePlot(macs, order=T, features= "Tnf", pt.size = 1,  split.by = "Experiment2", cols= c("grey", "dark red"))
+ggsave(paste0(dir,"/Tnf.pdf"), height=3, width=6)
+
+FeaturePlot(macs, order=T, features= "Cxcl2", pt.size = 1,  split.by = "Experiment2", cols= c("grey", "dark red"))
+ggsave(paste0(dir,"/Cxcl2.pdf"), height=3, width=6)
+
+FeaturePlot(macs, order=T, features= "Ccl2", pt.size = 1,  split.by = "Experiment2", cols= c("grey", "dark red"))
+ggsave(paste0(dir,"/Ccl2.pdf"), height=3, width=6)
+
+FeaturePlot(macs, order=T, features= "Cd74", pt.size = 1,  split.by = "Experiment2", cols= c("grey", "dark red"))
+ggsave(paste0(dir,"/Cd74.pdf"), height=3, width=6)
+
+FeaturePlot(macs, order=T, features= "Tgfbr1", pt.size = 1,  split.by = "Experiment2", cols= c("grey", "dark red"))
+ggsave(paste0(dir,"/Tgfbr1.pdf"), height=3, width=6)
+
+FeaturePlot(macs, order=T, features= "Tlr2", pt.size = 1,  split.by = "Experiment2", cols= c("grey", "dark red"))
+ggsave(paste0(dir,"/Tlr2.pdf"), height=3, width=6)
+
+FeaturePlot(macs, order=T, features= "Tyrobp", pt.size = 1,  split.by = "Experiment2", cols= c("grey", "dark red"))
+ggsave(paste0(dir,"/Tyrobp.pdf"), height=3, width=6)
+
+FeaturePlot(macs, order=T, features= "Fcer1g", pt.size = 1,  split.by = "Experiment2", cols= c("grey", "dark red"))
+ggsave(paste0(dir,"/Fcer1g.pdf"), height=3, width=6)
+
+
+FeaturePlot(macs, order=T, features= "Tlr2", pt.size = 1,  split.by = "Experiment2", cols= c("grey", "dark red"))
+ggsave(paste0(dir,"/Tlr2.pdf"), height=3, width=6)
+
+
+
+
+
+#exploratory single genes
+FeaturePlot(macs, order=T, features= "Folr2", pt.size = 1,  split.by = "Experiment2", cols= c("grey", "dark red"))
+
+FeaturePlot(macs, order=T, features= "Cd9", pt.size = 1,  split.by = "Experiment2", cols= c("grey", "dark red"))
+
+
+
+
+
+
+
+
+
+
+```
+
+```{r}
+#Violinplots
+
+#"Tyrobp", "Ighd", "Cd3e", "Il1r2", "Cpa3", "Flt3")
+
+VlnPlot(macs, features= "Zbtb46",  pt.size = 1,  split.by = "Experiment2", cols= c("cornflowerblue", "dark red"))
+ggsave(paste0(dir,"/vln.Zbtb46.pdf"), height=3, width=6)
+
+VlnPlot(macs, features= "Flt3",  pt.size = 1,  split.by = "Experiment2", cols= c("cornflowerblue", "dark red"))
+ggsave(paste0(dir,"/vln.Flt3.pdf"), height=3, width=6)
+
+VlnPlot(macs, features= "Cd3e",  pt.size = 1,  split.by = "Experiment2", cols= c("cornflowerblue", "dark red"))
+ggsave(paste0(dir,"/vln.Cd3e.pdf"), height=3, width=6)
+
+VlnPlot(macs, features= "Il1r2",  pt.size = 1,  split.by = "Experiment2", cols= c("cornflowerblue", "dark red"))
+ggsave(paste0(dir,"/vln.Il1r2.pdf"), height=3, width=6)
+
+VlnPlot(macs, features= "Cpa3",  pt.size = 1,  split.by = "Experiment2", cols= c("cornflowerblue", "dark red"))
+ggsave(paste0(dir,"/vln.Cpa3.pdf"), height=3, width=6)
+
+
+VlnPlot(macs, features= "Fcer1g", idents = C("0", "1"), pt.size = 1,  split.by = "Experiment2", cols= c("cornflowerblue", "dark red"))
+ggsave(paste0(dir,"/vln.pdf"), height=3, width=6)
+
+?VlnPlot
+
+```
+
+
+
+```{r}
+
+#Dotplots
+
+
+
+
+
+```
+

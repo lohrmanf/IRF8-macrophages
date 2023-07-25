@@ -1,0 +1,158 @@
+---
+title: "grouped expression"
+output: html_document
+date: '2022-06-07'
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+library(Seurat)
+library(ggplot2)
+library(readxl)
+library(tidyverse)
+library(RColorBrewer)
+library(patchwork)
+library(ggpubr)
+
+dir <- "Results/TXGene_expressions/grouped_expressions"
+dir.create(dir)
+
+TX <- readRDS(paste0("Results/2.2TXnoint/TXnoint-crop.RDS"))
+DefaultAssay(TX) <- "RNA"
+TX<- NormalizeData(TX, normalization.method = "LogNormalize")
+
+total.gene.list <- rownames(x=TX)
+
+#inflammasome
+inflammasome.list <- read_xlsx("Q:/CCI-T-AG-Henneke/Mitarbeiter/Florens/scRNA/wt_irf/gene_lists/inflammasome.xlsx")
+inflammasome.genes <- inflammasome.list$Symbol
+inflammasome <- intersect(total.gene.list, inflammasome.genes)
+list(inflammasome)
+
+# Get mean expression of genes of interest per cell
+agg.inflammasome <- colSums(x = TX@assays$RNA@data[inflammasome, ], na.rm = TRUE)
+
+# Add mean expression values in 'object@meta.data$inflammasome.score'
+if (all(names(x = agg.inflammasome) == rownames(x = TX@meta.data))) {
+  TX@meta.data$Inflammasome <- agg.inflammasome
+}
+
+# Plot mean expression using Seurat::FeaturePlot()
+FeaturePlot(TX, order=T, features= "Inflammasome", min.cutoff='q5', max.cutoff='q95', pt.size = 0.8, label=F) +theme(legend.position = "right") +scale_colour_gradientn(colours = rev(brewer.pal(n = 11, name = "RdYlBu")))
+
+
+#phagocytosis
+phagocytosis.list <- read_xlsx("Q:/CCI-T-AG-Henneke/Mitarbeiter/Florens/scRNA/wt_irf/gene_lists/phagocytosis.xlsx")
+phagocytosis.genes <- phagocytosis.list$Symbol
+phagocytosis <- intersect(total.gene.list, phagocytosis.genes)
+list(phagocytosis)
+
+# Get mean expression of genes of interest per cell
+agg.phagocytosis <- colSums(x = TX@assays$RNA@data[phagocytosis, ], na.rm = TRUE)
+
+# Add mean expression values in 'object@meta.data$phagocytosis.score'
+if (all(names(x = agg.phagocytosis) == rownames(x = TX@meta.data))) {
+  TX@meta.data$Phagocytosis <- agg.phagocytosis
+}
+
+#ROS
+ROS.list <- read_xlsx("Q:/CCI-T-AG-Henneke/Mitarbeiter/Florens/scRNA/wt_irf/gene_lists/ROS.xlsx")
+ROS.genes <- ROS.list$Symbol
+ROS <- intersect(total.gene.list, ROS.genes)
+list(ROS)
+
+# Get mean expression of genes of interest per cell
+agg.ROS <- colSums(x = TX@assays$RNA@data[ROS, ], na.rm = TRUE)
+
+# Add mean expression values in 'object@meta.data$ROS.score'
+if (all(names(x = agg.ROS) == rownames(x = TX@meta.data))) {
+  TX@meta.data$ROS <- agg.ROS
+}
+
+#tissue remodeling
+tissue.list <- read_xlsx("Q:/CCI-T-AG-Henneke/Mitarbeiter/Florens/scRNA/wt_irf/gene_lists/Tissue_remodeling.xlsx")
+tissue.genes <- tissue.list$Symbol
+Tissue_remodeling <- intersect(total.gene.list, tissue.genes)
+list(Tissue_remodeling)
+
+# Get mean expression of genes of interest per cell
+agg.tissue <- colSums(x = TX@assays$RNA@data[Tissue_remodeling, ], na.rm = TRUE)
+if (all(names(x = agg.tissue) == rownames(x = TX@meta.data))) {
+  TX@meta.data$Tissue_remodeling <- agg.tissue
+}
+
+#Antigen
+Antigen.list <- read_xlsx("Q:/CCI-T-AG-Henneke/Mitarbeiter/Florens/scRNA/wt_irf/gene_lists/Antigen_presentation.xlsx")
+Antigen.genes <- Antigen.list$Symbol
+Antigen_presentation <- intersect(total.gene.list, Antigen.genes)
+list(Antigen_presentation)
+
+# Get mean expression of genes of interest per cell
+agg.Antigen_presentation <- colSums(x = TX@assays$RNA@data[Antigen_presentation, ], na.rm = TRUE)
+if (all(names(x = agg.Antigen_presentation) == rownames(x = TX@meta.data))) {
+  TX@meta.data$Antigen_presentation <- agg.Antigen_presentation
+}
+
+
+
+```
+
+## R Markdown
+
+```{r}
+c0<- "#8bd346"
+c1<- "#d64e12"
+c2<- "#60dbe8"
+c3<- "#00008B"
+c4<- "#efdf48"
+c5<- "#f9a52c"
+c6<- "#9b5fe0"
+c7<- "#6495ED"
+c8<- "#216477"
+
+
+cols.antigen <- c(c4, c7, c0, c6, c5, c1, c2, c3, c8)
+
+p1<- VlnPlot(TX, features="Antigen_presentation", idents=c(0,1,2,3,4,5,6,7,8), cols=cols.antigen, pt.size = 0, sort="increasing", log=T)+labs(title="Antigen processing/presentation", x ="Cluster", y = "Aggregated count") +theme(text = element_text(size=20), axis.text=element_text(size=16), axis.text.x = element_text(angle = 0, hjust=0.5), plot.title = element_text(size=20, face="plain", vjust = 1))+geom_boxplot(width=.2, fill="white") +theme(legend.position="none")
+p1
+
+cols.inflammasome <- c(c4, c1, c7, c0, c2, c5, c3, c6, c8)
+
+p2<- VlnPlot(TX, features="Inflammasome", idents=c(0,1,2,3,4,5,6,7,8), cols=cols.inflammasome, pt.size = 0, sort="increasing", log=T)+labs(title="Inflammasome", x ="Cluster", y = "Aggregated count") +theme(text = element_text(size=20), axis.text=element_text(size=16), axis.text.x = element_text(angle = 0, hjust=0.5), plot.title = element_text(size=20, face="plain", vjust = 1))+geom_boxplot(width=.2, fill="white") +theme(legend.position="none")
+p2
+
+cols.tissue <- c(c1, c4, c0, c7, c2, c6, c5, c3, c8)
+
+p3<- VlnPlot(TX, features="Tissue_remodeling", idents=c(0,1,2,3,4,5,6,7,8), cols=cols.tissue, pt.size = 0, sort="increasing", log=T)+labs(title="Tissue remodeling", x ="Cluster", y = "Aggregated count") +theme(text = element_text(size=20), axis.text=element_text(size=16), axis.text.x = element_text(angle = 0, hjust=0.5), plot.title = element_text(size=20, face="plain", vjust = 1))+geom_boxplot(width=.2, fill="white") +theme(legend.position="none")
+p3
+
+cols.Phagocytosis <- c(c4, c1, c0, c7, c2, c5, c6, c3, c8)
+
+p4<- VlnPlot(TX, features="Phagocytosis", idents=c(0,1,2,3,4,5,6,7,8), cols=cols.Phagocytosis, pt.size = 0, sort="increasing", log=T)+labs(title="Phagocytosis", x ="Cluster", y = "Aggregated count") +theme(text = element_text(size=20), axis.text=element_text(size=16), axis.text.x = element_text(angle = 0, hjust=0.5), plot.title = element_text(size=20, face="plain", vjust = 1))+geom_boxplot(width=.2, fill="white") +theme(legend.position="none")
+p4
+
+
+cols.ROS <- c(c1, c0, c2, c4, c6, c7, c5, c3, c8)
+
+p5<- VlnPlot(TX, features="ROS", idents=c(0,1,2,3,4,5,6,7,8), cols=cols.ROS, pt.size = 0, sort="increasing", log=T)+labs(title="ROS", x ="Cluster", y = "Aggregated count") +theme(text = element_text(size=20), axis.text=element_text(size=16), axis.text.x = element_text(angle = 0, hjust=0.5), plot.title = element_text(size=20, face="plain", vjust = 1))+geom_boxplot(width=.2, fill="white") +theme(legend.position="none")
+p5
+
+
+
+p1<- p1+stat_compare_means(comparisons = list(c(1,5), c(5,7)), label = "p.signif")
+p2<- p2+stat_compare_means(comparisons = list(c(1,5), c(5,6)), label = "p.signif")
+p3<- p3+stat_compare_means(comparisons = list(c(2,5), c(5,7)), label = "p.signif")
+p4<- p4+stat_compare_means(comparisons = list(c(1,5), c(5,6)), label = "p.signif")
+p5<- p5+stat_compare_means(comparisons = list(c(3,4), c(4,7)), label = "p.signif")
+
+
+p1+p2+p3+p4+ plot_layout(ncol = 2)
+ggsave(paste0(dir,"/TX.Vln.png"), height=9, width=13, dpi=600)
+
+
+```
+
+
+
+

@@ -1,0 +1,161 @@
+---
+title: "Untitled"
+output: html_document
+date: '2022-11-24'
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+
+library(Seurat)
+library(ggplot2)
+library(RColorBrewer)
+
+dir <- "Results/visualization"
+dir.create(dir)
+
+TX <- readRDS(paste0("Results/2.2TXnoint/TXnoint-crop.RDS"))
+DefaultAssay(TX) <- "RNA"
+TX<- NormalizeData(TX, normalization.method = "LogNormalize") 
+
+TX <- RenameIdents(object = TX, '0' = "T0", '1' = "T1", '2' = "T2", '3'="T3", '4'="T4", '5'="T5", '6'="T6", '7'="T7", '8'="T8", '9'='T9')
+
+colors <- c("#8bd346", 
+            "#d64e12",
+            "#60dbe8", 
+            "#00008B", 
+            "#efdf48", 
+            "#f9a52c", 
+            "#9b5fe0", 
+            "#6495ED", 
+            "#216477", 
+            "grey")
+
+TX@meta.data$Experiment2[(TX@meta.data$Experiment)=="D4"] <- "BM-4W"
+TX@meta.data$Experiment2[(TX@meta.data$Experiment)=="R4"] <- "Res-4W"
+TX@meta.data$Experiment2[(TX@meta.data$Experiment)=="D16"] <- "BM-16W"
+TX@meta.data$Experiment2[(TX@meta.data$Experiment)=="R16"] <- "Res-16W"
+
+TX$Experiment2 <- factor(x = TX$Experiment2, levels = c("Res-4W", "BM-4W", "Res-16W", "BM-16W"))
+
+plot <- DimPlot(TX, reduction = "umap", split.by="Experiment2")
+plot
+plot <- DimPlot(TX, reduction = "umap", split.by="Experiment2", label = T, repel = F, pt.size=1.5, raster = F, label.size=5, label.color="dark red", cols=alpha(colors, 0.66)) + scale_x_continuous(name="UMAP 1", breaks=seq(-4,4,4))+scale_y_continuous(name="UMAP 2", breaks=seq(-4,4,4))+ theme(strip.text.x = element_text(size = 16, face = "plain")) +NoLegend() 
+plot
+ggsave(paste0(dir,"/Clusters.png"), height=4, width=12, dpi=600)
+
+plot2 <- DimPlot(TX, reduction = "umap", label = T, repel = F, pt.size=1.5, raster = F, label.size=5, label.color="dark red", cols=alpha(colors, 0.66)) + scale_x_continuous(name="UMAP 1", breaks=seq(-4,4,4))+scale_y_continuous(name="UMAP 2", breaks=seq(-4,4,4))+ theme(strip.text.x = element_text(size = 16, face = "plain")) +NoLegend()  
+plot2
+ggsave(paste0(dir,"/Clusters-unsplit.png"), height=4, width=4, dpi=600)
+
+#FeaturePlot(TX, order=T, features= "Cx3cr1")
+
+```
+
+```{r}
+library(dittoSeq)
+cols=c("#026c45","#0000FF" ,"#90EE90", "#55A0FB")
+
+TX@meta.data$Experiment2[(TX@meta.data$Experiment)=="D4"] <- "BM-4W"
+TX@meta.data$Experiment2[(TX@meta.data$Experiment)=="R4"] <- "Res-4W"
+TX@meta.data$Experiment2[(TX@meta.data$Experiment)=="D16"] <- "BM-16W"
+TX@meta.data$Experiment2[(TX@meta.data$Experiment)=="R16"] <- "Res-16W"
+
+TX.sub <- subset(TX, idents=c("T0", "T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8"))
+
+dittoBarPlot(object = TX.sub, var = "Experiment2", group.by = "seurat_clusters",color.panel = cols)+labs(title="Cluster origin", x ="Cluster", y = "Fraction of cells") +theme(legend.position= "bottom", legend.direction="vertical", text = element_text(size=18))+ scale_x_discrete(labels=c('T0', 'T1', 'T2','T3', 'T4', 'T5', 'T6', 'T7', 'T8'))
+
+                                                                                                                                                                                                                                                                                                 ggsave(paste0(dir,"/Origin.png"), height=5, width=3, dpi=600)
+
+View(TX@meta.data$seurat_clusters)
+
+?dittoBarPlot
+
+```
+
+
+
+```{r}
+Il1b<- FeaturePlot(TX, order=T, features= "Il1b", min.cutoff='q5', max.cutoff='q95', pt.size = 0.8, combine=T, label=F) +theme(legend.position = "right") +scale_colour_gradientn(colours = rev(brewer.pal(n = 11, name = "RdYlBu")))
+Il1b
+ggsave(paste0(dir,"/Il1b.png"), height=3, width=3, dpi=600) 
+
+Cd74<- FeaturePlot(TX, order=T, features= "Cd74", min.cutoff='q5', max.cutoff='q95', pt.size = 1.2, combine=T, label=F) +theme(legend.position = "right") +scale_colour_gradientn(colours = rev(brewer.pal(n = 11, name = "RdYlBu")))
+Cd74
+ggsave(paste0(dir,"/Cd74.png"), height=3, width=3, dpi=600)
+
+Maf<- FeaturePlot(TX, order=T, features= "Maf", min.cutoff='q5', max.cutoff='q95', pt.size = 1.2, combine=T, label=F) +theme(legend.position = "right") +scale_colour_gradientn(colours = rev(brewer.pal(n = 11, name = "RdYlBu")))
+Maf
+ggsave(paste0(dir,"/Maf.png"), height=3, width=3, dpi=600)
+
+Tnf<- FeaturePlot(TX, order=T, features= "Tnf", min.cutoff='q5', max.cutoff='q95', pt.size = 1.2, combine=T, label=F) +theme(legend.position = "right") +scale_colour_gradientn(colours = rev(brewer.pal(n = 11, name = "RdYlBu")))
+Tnf
+ggsave(paste0(dir,"/Tnf.png"), height=3, width=3, dpi=600)
+
+Csf2rb<- FeaturePlot(TX, order=T, features= "Csf2rb", min.cutoff='q5', max.cutoff='q95', pt.size = 1.2, combine=T, label=F) +theme(legend.position = "right") +scale_colour_gradientn(colours = rev(brewer.pal(n = 11, name = "RdYlBu")))
+Csf2rb
+ggsave(paste0(dir,"/Csf2rb.png"), height=3, width=3, dpi=600)
+
+Csf1r<- FeaturePlot(TX, order=T, features= "Csf1r", min.cutoff='q5', max.cutoff='q95', pt.size = 1.2, combine=T, label=F) +theme(legend.position = "right") +scale_colour_gradientn(colours = rev(brewer.pal(n = 11, name = "RdYlBu")))
+Csf1r
+ggsave(paste0(dir,"/Csf1r.png"), height=3, width=3, dpi=600)
+
+Ccl4<- FeaturePlot(TX, order=T, features= "Ccl4", min.cutoff='q5', max.cutoff='q95', pt.size = 1.2, combine=T, label=F) +theme(legend.position = "right") +scale_colour_gradientn(colours = rev(brewer.pal(n = 11, name = "RdYlBu")))
+Ccl4
+ggsave(paste0(dir,"/Ccl4.png"), height=3, width=3, dpi=600)
+
+Mt2<- FeaturePlot(TX, order=T, features= "Mt2", min.cutoff='q5', max.cutoff='q95', pt.size = 1.2, combine=T, label=F) +theme(legend.position = "right") +scale_colour_gradientn(colours = rev(brewer.pal(n = 11, name = "RdYlBu")))
+Mt2
+ggsave(paste0(dir,"/Mt2.png"), height=3, width=3, dpi=600)
+
+```
+
+
+
+```{r}
+TX<- NormalizeData(TX, normalization.method = "LogNormalize") 
+
+genes <- c(
+  "Cd9", "Pdgfb", "Cx3cr1", 
+  "Ccl2","Tnf", "Ccl4",
+  "Gpnmb", "Abcg1", "Ly6c2", "Thbs1",  
+  "Ctsk", "P2rx7", 
+  "Csf1r",  "Fos", "Maf", "Jun",
+  "Csf2rb", "Cd74", "Lyz1","Il1b",
+  "Il10", "Clec4d", "Cxcl1",  
+  "Gdf15", "Ednrb",
+  "Trim25", "Mmp19")
+
+DotPlot(TX, idents=c("T0","T1","T2","T3","T4","T5","T6", "T7", "T8"), features = genes, scale = T, cols = c("RdYlBu")) + geom_point(aes(size=pct.exp), shape = 21, colour="black", stroke=0.5) + guides(size=guide_legend(override.aes=list(shape=21, colour="black", fill="white"))) + xlab('Gene') +  ylab('Cluster')+ RotatedAxis() +theme(
+  panel.background = element_blank(),
+  panel.border = element_rect(fill = NA),
+  text = element_text(size = 12),
+  panel.grid.major.x = element_line(color = "grey80"),
+  panel.grid.major.y = element_line(color = "grey80") )
+ggsave(paste0(dir,"/DP-TX-as wt.png"), height=4, width=8, dpi=600)
+
+genes2 <- c(
+  "Ccl8", "Ccl6", "Rps8", "Wfdc17", "Ifi27l2a",
+  "Ccl5","Cd9", "Ccl4", "Cd52","Cxcl1", "Ccl3", "Itgav",
+  "Txnip", "Klf2",
+  "Maf", "Jun","Egr1", "Fos", "Cx3cr1",
+  "Thbs1", "Cd74", "Il1b", "Jak2", 
+  "Plau", "Cebpb","Junb", "Lgmn", "Jund",
+  "Ctsl", "Colec12","Ednrb", "Tnf",
+  "Mt1", "Mt2","Ccl24", "Nlrp3", "Socs3", "Tlr2",
+  "Eps8", "Mmp19", "Il1r1"
+  )
+
+DotPlot(TX, idents=c("T0","T1","T2","T3","T4","T5","T6", "T7", "T8"), features = genes2, scale = T, cols = c("RdYlBu")) + geom_point(aes(size=pct.exp), shape = 21, colour="black", stroke=0.5) + guides(size=guide_legend(override.aes=list(shape=21, colour="black", fill="white"))) + xlab('Gene') +  ylab('Cluster')+ RotatedAxis() +theme(
+  panel.background = element_blank(),
+  panel.border = element_rect(fill = NA),
+  text = element_text(size = 12),
+  panel.grid.major.x = element_line(color = "grey80"),
+  panel.grid.major.y = element_line(color = "grey80") )
+ggsave(paste0(dir,"/DP-TX.png"), height=4, width=10, dpi=600)
+
+
+
+```
+

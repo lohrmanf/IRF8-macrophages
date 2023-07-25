@@ -1,0 +1,106 @@
+---
+title: "2.2TXnoint"
+output: html_document
+date: '2022-06-09'
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+
+library(Seurat)
+library(ggplot2)
+library(openxlsx)
+library(dplyr)
+library(patchwork)
+
+dir <- "Results/2.2TXnoInt"
+dir.create(dir)
+
+D4 =readRDS("Results/1TXReadinData/D4.RDS")
+D16 =readRDS("Results/1TXReadinData/D16.RDS")
+R4 =readRDS("Results/1TXReadinData/R4.RDS")
+R16 =readRDS("Results/1TXReadinData/R16.RDS")
+
+# Add percent mitochondrial genes per cell
+D4[["percent.mt"]] <- PercentageFeatureSet(D4, pattern = "^mt-")
+D16[["percent.mt"]] <- PercentageFeatureSet(D16, pattern = "^mt-")
+R4[["percent.mt"]] <- PercentageFeatureSet(R4, pattern = "^mt-")
+R16[["percent.mt"]] <- PercentageFeatureSet(R16, pattern = "^mt-")
+
+# QC filtering
+D4 <- subset(D4, subset= percent.mt<5 & nFeature_RNA>200 & nFeature_RNA<5000)
+D4 <- subset(D4, subset= Zbtb46 <2)
+
+D16 <- subset(D16, subset= percent.mt<5 & nFeature_RNA>200 & nFeature_RNA<5000)
+D16 <- subset(D16, subset= Zbtb46 <2)
+
+R4 <- subset(R4, subset= percent.mt<5 & nFeature_RNA>200 & nFeature_RNA<5000)
+R4 <- subset(R4, subset= Zbtb46 <2 & Cpa3 <2)
+
+R16 <- subset(R16, subset= percent.mt<5 & nFeature_RNA>200 & nFeature_RNA<5000)
+R16 <- subset(R16, subset= Zbtb46 <2 & Cpa3 <2)
+
+mac.comb <- merge(D4, y=c(D16, R4, R16), add.cell.ids = c("D4", "D16", "R4", "R16"))
+
+#Normalize
+mac.comb <- NormalizeData(mac.comb)
+mac.comb <- FindVariableFeatures(mac.comb, selection.method = "vst", nfeatures = 3000)
+all.genes <- rownames(mac.comb)
+mac.combined <- ScaleData(mac.comb, features = all.genes, vars.to.regress = "percent.mt")
+
+mac.combined <- RunPCA(mac.combined, features = VariableFeatures(object = mac.combined))
+
+ElbowPlot(mac.combined)
+
+saveRDS(mac.combined, paste0(dir,"/TXmac.combined_scale_PCA.RDS"))
+
+mac.combined <- readRDS("Results/2.2TXnoInt/TXmac.combined_scale_PCA.RDS")
+
+mac.combined <- RunUMAP(mac.combined, dims = 1:19)
+
+PCAPlot(mac.combined, split.by="Experiment")
+
+DimPlot(mac.combined, reduction = "umap")
+mac.combined
+
+umapco<- as.data.frame(mac.combined[["umap"]]@cell.embeddings)
+good.cells <- rownames(subset(umapco, umapco$UMAP_1> -10))
+mac.combined <- subset(mac.combined, cells=good.cells)
+good.cells2 <- rownames(subset(umapco, umapco$UMAP_2> -10))
+mac.combined <- subset(mac.combined, cells=good.cells2)
+
+# Find cluster
+mac.combined <- FindNeighbors(mac.combined, dims=1:30)
+mac.combined <- FindClusters(mac.combined,  resolution= 0.64)
+
+DimPlot(mac.combined, reduction = "umap", split.by = "Experiment", label = TRUE, repel = F)
+?FindClusters
+
+DimPlot(mac.combined, reduction = "umap", label=TRUE)
+
+mac.combined$Experiment <- factor(x = mac.combined$Experiment, levels = c("R4", "D4", "R16", "D16"))
+
+# Save data
+mac.combined <- NormalizeData(mac.combined, normalization.method = "LogNormalize")
+saveRDS(mac.combined, paste0(dir,"/TXnoint-crop.RDS"))
+
+#mac.combined <- readRDS("Results/2.2TXnoint/TXnoint-crop.RDS")
+
+# Visualization
+DimPlot(mac.combined, reduction = "umap", split.by = "Experiment", label = TRUE, repel = F)
+ggsave(paste0(dir,"/TXumap_splitbyExp_noint.pdf"),height=5,width=15)
+
+Cluster.Distribution <- as.data.frame.matrix(prop.table(table(Idents(mac.combined), mac.combined$orig.ident), margin=2))
+Cluster.Distribution <- round(Cluster.Distribution, 4)
+write.xlsx(Cluster.Distribution, paste0(dir,"/TXcl_prop_splitbyorigident_noint.xlsx"), rowNames=TRUE)
+
+
+Cluster.numbers <- as.data.frame.matrix(table(Idents(mac.combined), mac.combined$Experiment), margin=2)
+write.xlsx(Cluster.numbers, paste0(dir,"/Cluster.numbers.xlsx"), rowNames=TRUE)
+
+
+
+```
+
+

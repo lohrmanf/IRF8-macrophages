@@ -1,0 +1,69 @@
+---
+title: "Setup cluster import velocity"
+output: html_document
+date: '2022-10-26'
+---
+
+```{r setup, include=FALSE}
+
+library(Seurat)
+library(ggplot2)
+library(Matrix)
+
+dir <- "Results/Velocyto-files"
+dir.create(dir)
+
+TX <- readRDS(paste0("Results/2.2TXnoint/TXnoint-crop.RDS"))
+
+# save metadata table:
+TX$barcode <- colnames(TX)
+TX$UMAP_1 <- TX@reductions$umap@cell.embeddings[,1]
+TX$UMAP_2 <- TX@reductions$umap@cell.embeddings[,2]
+write.csv(TX@meta.data, file=paste0(dir,"/TX.metadata.csv"), quote = F, row.names=F)
+
+# write expression counts matrix
+counts_matrix <- GetAssayData(TX, assay='RNA', slot='counts')
+writeMM(counts_matrix, file=paste0(dir, '/TX.counts.mtx'))
+
+# write dimensionality reduction matrix, in this example case pca matrix
+write.csv(TX@reductions$pca@cell.embeddings, file=paste0(dir, '/TX.pca.csv'), quote=F, row.names=F)
+
+# write gene names
+write.table(data.frame('gene'=rownames(counts_matrix)),file=paste0(dir, '/TX.gene_names.csv'), quote=F,row.names=F,col.names=F)
+
+
+
+```
+
+## R Markdown
+```{r}
+#separate by Experiment
+
+TXD4 <- subset(x=TX, subset= Experiment == "D4")
+TXR4 <- subset(x=TX, subset= Experiment == "R4")
+TXD16 <- subset(x=TX, subset= Experiment == "D16")
+TXR16 <- subset(x=TX, subset= Experiment == "R16")
+
+#D4
+TXD4$barcode <- colnames(TXD4)
+TXD4$UMAP_1 <- TXD4@reductions$umap@cell.embeddings[,1]
+TXD4$UMAP_2 <- TXD4@reductions$umap@cell.embeddings[,2]
+write.csv(TXD4@meta.data, file=paste0(dir,"/TXD4.metadata.csv"), quote = F, row.names=F)
+counts_matrixD4 <- GetAssayData(TXD4, assay='RNA', slot='counts')
+writeMM(counts_matrixD4, file=paste0(dir, '/TXD4.counts.mtx'))
+write.csv(TXD4@reductions$pca@cell.embeddings, file=paste0(dir, '/TXD4.pca.csv'), quote=F, row.names=F)
+write.table(data.frame('gene'=rownames(counts_matrixD4)),file=paste0(dir, '/TXD4.gene_names.csv'), quote=F,row.names=F,col.names=F)
+
+
+
+```
+
+
+```{r}
+
+
+```
+
+## Including Plots
+
+

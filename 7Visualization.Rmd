@@ -1,0 +1,264 @@
+---
+title: "Untitled"
+output: html_document
+date: '2022-11-24'
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+
+library(Seurat)
+library(ggplot2)
+library(viridis)
+library(RColorBrewer)
+library(tidyverse)
+
+dir <- "Results/visualization"
+dir.create(dir)
+
+mac <- readRDS("Results/2.3Int_all/all_data.RDS")
+DefaultAssay(mac) <- "RNA"
+mac<- NormalizeData(mac, normalization.method = "LogNormalize")
+
+#mac <- RenameIdents(object = mac, '0' = "Res 0", '1' = "Res 1", '2' = "Inflammatory - innate", '3'="Inflammatory - adaptive", '4'="Regulatory", '5'="Tissue shaping", '6'="Mc-like", '7'="CCL4+", '8'="sNaM")
+
+plot <- DimPlot(mac, reduction = "umap", order=F, split.by="Experiment2", raster=F, label = T, label.size=6, repel = F, pt.size=1,
+                cols=c("#8AB6F9", 
+                       "#B25690", 
+                       "#ffc13b",
+                      "#04d4f0",
+                       "#5c3c92",
+                       "#077b8a",
+                      "#d72631",
+                       "#c38b72", "#80c904", "#bbc0b6","#bbc0b6", "#bbc0b6"))+ scale_x_continuous(name="UMAP 1", breaks=seq(-5,5,5))+scale_y_continuous(name="UMAP 2", breaks=seq(-10,5,5))+ theme(strip.text.x = element_text(size = 18, face = "plain")) + NoLegend()
+plot
+ggsave(paste0(dir,"/Clusters.png"), height=5, width=9, dpi=600)
+
+?DimPlot
+
+#scale_colour_gradientn(colours = rev(brewer.pal(n = 11, name = "RdYlBu")))
+
+
+Il1b<- FeaturePlot(mac, order=T, features= "Il1b", min.cutoff='q5', max.cutoff='q95', pt.size = 0.8, split.by = "Experiment2", combine=T, label=F) +theme(legend.position = "right") +scale_colour_gradientn(colours = rev(brewer.pal(n = 11, name = "RdYlBu")))
+Il1b [[1]] <- Il1b[[1]]+scale_colour_gradientn(colours = rev(brewer.pal(n = 11, name = "RdYlBu")))
+Il1b
+ggsave(paste0(dir,"/Il1b.png"), height=3, width=6, dpi=600) 
+
+Cd74<- FeaturePlot(mac, order=T, features= "Cd74", min.cutoff='q5', max.cutoff='q95', pt.size = 0.8, split.by = "Experiment2", combine=T, label=F) +theme(legend.position = "right") +scale_colour_gradientn(colours = rev(brewer.pal(n = 11, name = "RdYlBu")))
+Cd74 [[1]] <- Cd74[[1]]+scale_colour_gradientn(colours = rev(brewer.pal(n = 11, name = "RdYlBu")))
+Cd74
+ggsave(paste0(dir,"/Cd74.png"), height=3, width=6, dpi=600)
+
+Maf<- FeaturePlot(mac, order=T, features= "Maf", min.cutoff='q5', max.cutoff='q95', pt.size = 0.8, split.by = "Experiment2", combine=T, label=F) +theme(legend.position = "right") +scale_colour_gradientn(colours = rev(brewer.pal(n = 11, name = "RdYlBu")))
+Maf [[1]] <- Maf[[1]]+scale_colour_gradientn(colours = rev(brewer.pal(n = 11, name = "RdYlBu")))
+Maf
+ggsave(paste0(dir,"/Maf.png"), height=3, width=6, dpi=600)
+
+Tnf<- FeaturePlot(mac, order=T, features= "Tnf", min.cutoff='q5', max.cutoff='q95', pt.size = 0.8, split.by = "Experiment2", combine=T, label=F) +theme(legend.position = "right") +scale_colour_gradientn(colours = rev(brewer.pal(n = 11, name = "RdYlBu")))
+Tnf [[1]] <- Tnf[[1]]+scale_colour_gradientn(colours = rev(brewer.pal(n = 11, name = "RdYlBu")))
+Tnf
+ggsave(paste0(dir,"/Tnf.png"), height=3, width=6, dpi=600)
+
+Il10<- FeaturePlot(mac, order=T, features= "Il10", min.cutoff='q5', max.cutoff='q95', pt.size = 0.8, split.by = "Experiment2", combine=T, label=F) +theme(legend.position = "right") +scale_colour_gradientn(colours = rev(brewer.pal(n = 11, name = "RdYlBu")))
+Il10 [[1]] <- Il10[[1]]+scale_colour_gradientn(colours = rev(brewer.pal(n = 11, name = "RdYlBu")))
+Il10
+ggsave(paste0(dir,"/Il10.png"), height=3, width=6, dpi=600)
+
+Ctsk<- FeaturePlot(mac, order=T, features= "Ctsk", min.cutoff='q5', max.cutoff='q95', pt.size = 0.8, split.by = "Experiment2", combine=T, label=F) +theme(legend.position = "right") +scale_colour_gradientn(colours = rev(brewer.pal(n = 11, name = "RdYlBu")))
+Ctsk [[1]] <- Ctsk[[1]]+scale_colour_gradientn(colours = rev(brewer.pal(n = 11, name = "RdYlBu")))
+Ctsk
+ggsave(paste0(dir,"/Ctsk.png"), height=3, width=6, dpi=600)
+
+Ccl4<- FeaturePlot(mac, order=T, features= "Ccl4", min.cutoff='q5', max.cutoff='q95', pt.size = 0.8, split.by = "Experiment2", combine=T, label=F) +theme(legend.position = "right") +scale_colour_gradientn(colours = rev(brewer.pal(n = 11, name = "RdYlBu")))
+Ccl4 [[1]] <- Ccl4[[1]]+scale_colour_gradientn(colours = rev(brewer.pal(n = 11, name = "RdYlBu")))
+Ccl4
+ggsave(paste0(dir,"/Ccl4.png"), height=3, width=6, dpi=600)
+
+mac.wt <- subset(x=mac,subset=Experiment2=="WT")
+
+Irf8<- FeaturePlot(mac.wt, order=T, features= "Irf8", min.cutoff='q5', max.cutoff='q95', pt.size = 0.8, combine=T, label=F) +theme(legend.position = "right") +scale_colour_gradientn(colours = rev(brewer.pal(n = 11, name = "RdYlBu")))
+Irf8 [[1]] <- Irf8[[1]]+scale_colour_gradientn(colours = rev(brewer.pal(n = 11, name = "RdYlBu")))
+Irf8
+ggsave(paste0(dir,"/Irf8.png"), height=3, width=3, dpi=600)
+
+Lyve1<- FeaturePlot(mac, order=T, features= "Lyve1", min.cutoff='q5', max.cutoff='q95', pt.size = 0.8, split.by = "Experiment2", combine=T, label=F) +theme(legend.position = "right") +scale_colour_gradientn(colours = rev(brewer.pal(n = 11, name = "RdYlBu")))
+Lyve1 [[1]] <- Lyve1[[1]]+scale_colour_gradientn(colours = rev(brewer.pal(n = 11, name = "RdYlBu")))
+Lyve1
+ggsave(paste0(dir,"/Lyve1.png"), height=3, width=6, dpi=600)
+
+Lyz2<- FeaturePlot(mac, order=T, features= "Lyz2", min.cutoff='q5', max.cutoff='q95', pt.size = 0.8, split.by = "Experiment2", combine=T, label=F) +theme(legend.position = "right") +scale_colour_gradientn(colours = rev(brewer.pal(n = 11, name = "RdYlBu")))
+Lyz2 [[1]] <- Lyz2[[1]]+scale_colour_gradientn(colours = rev(brewer.pal(n = 11, name = "RdYlBu")))
+Lyz2
+
+
+?FeaturePlot
+```
+
+```{r}
+mac@meta.data$Experiment3[(mac@meta.data$orig.ident)=="mac-wt"] <- "WT 1-3"
+mac@meta.data$Experiment3[(mac@meta.data$orig.ident)=="N-S1"] <- "WT 4"
+mac@meta.data$Experiment3[(mac@meta.data$orig.ident)=="N-S2"] <- "WT 5"
+mac@meta.data$Experiment3[(mac@meta.data$orig.ident)=="N-S3"] <- "WT 6"
+mac@meta.data$Experiment3[(mac@meta.data$orig.ident)=="mac-irf8"] <- "IRF 1-3"
+mac@meta.data$Experiment3[(mac@meta.data$orig.ident)=="I-S1"] <- "IRF 4"
+mac@meta.data$Experiment3[(mac@meta.data$orig.ident)=="I-S2"] <- "IRF 5"
+mac@meta.data$Experiment3[(mac@meta.data$orig.ident)=="I-S3"] <- "IRF 6"
+
+mac$Experiment3 <- factor(x = mac$Experiment3, levels = c("WT 1-3", "WT 4", "WT 5", "WT 6","IRF 1-3", "IRF 4", "IRF 5", "IRF 6"))
+
+plot2 <- DimPlot(mac, reduction = "umap", order=F, split.by="Experiment3", raster=F, label = T, label.size=5, repel = F, pt.size=1,
+                cols=c("#8AB6F9", 
+                       "#B25690", 
+                       "#ffc13b",
+                      "#04d4f0",
+                       "#5c3c92",
+                       "#077b8a",
+                      "#d72631",
+                       "#c38b72", "#80c904", "#bbc0b6","#bbc0b6", "#bbc0b6"))+ scale_x_continuous(name="UMAP 1", breaks=seq(-5,5,5))+scale_y_continuous(name="UMAP 2", breaks=seq(-10,5,5))+ theme(strip.text.x = element_text(size = 18, face = "plain")) + NoLegend()
+plot2
+ggsave(paste0(dir,"/Clusters-splitsample.png"), height=5, width=20, dpi=600)
+
+```
+
+
+
+
+
+
+```{r}
+
+library(tidyverse)
+library(hrbrthemes)
+library(viridis)
+library(ggpubr)
+
+
+
+DefaultAssay(mac) <- "RNA"
+
+VlnPlot(mac, features="Cd74", group.by="Experiment2", cols=c("cornflowerblue", "dark red"), log=T, pt.size=0) +geom_boxplot(width=.1, fill="white") +theme(legend.position="none")+geom_signif(test = "wilcox.test")
+ggsave(paste0(dir,"/Vln-Cd74.png"), height=4, width=2, dpi=600)
+
+
+
+
+?VlnPlot
+?geom_signif
+?geom_boxplot
+
+counts.df <- mac@assays$RNA@data %>% as.matrix
+meta.df<- mac@meta.data
+
+
+counts.df <- t(counts.df)
+counts<- as.data.frame(counts.df)
+
+nrow(counts)
+nrow(meta.df)
+ncol(counts)
+ncol(meta.df)
+
+df<- merge(counts, meta.df, all=T, by='row.names')
+nrow(df)
+ncol(df)
+View(df)
+
+df.cd74<- df[, c("Cd74", "Experiment2")]
+View(df.cd74)
+
+ggviolin(dataframe.name, x = "type", y = "sum", fill = "type",
+         palette = c("#00AFBB", "#E7B800"),
+         add = "boxplot", add.params = list(fill = "white")) +
+  stat_compare_means(comparisons = list(c("circulating","resident")), label = "p.signif")+ # Add significance levels
+  stat_compare_means(label.y = 90)  
+
+
+
+p1<- ggviolin(df, x = "Experiment2", y = "Ly6c2", fill = "Experiment2",
+         palette = c("cornflowerblue", "dark red"),
+         add = "boxplot", add.params = list(fill = "white")) +
+  stat_compare_means(comparisons = list(c("WT","IRF8ko")), label = "p.signif")+labs(x ="") +theme(text = element_text(size=18), axis.text=element_text(size=14)) +theme(legend.position="none")  
+ggsave(paste0(dir,"/Vln-Ly6c2.png"), height=5, width=4, dpi=600)
+
+
+p2<- ggviolin(df, x = "Experiment2", y = "Cd74", fill = "Experiment2",
+         palette = c("cornflowerblue", "dark red"),
+         add = "boxplot", add.params = list(fill = "white")) +
+  stat_compare_means(comparisons = list(c("WT","IRF8ko")), label = "p.signif")+labs(x ="") +theme(text = element_text(size=18), axis.text=element_text(size=14)) +theme(legend.position="none")
+ggsave(paste0(dir,"/Vln-Cd74.png"), height=5, width=4, dpi=600)
+
+p3<- ggviolin(df, x = "Experiment2", y = "Il10", fill = "Experiment2",
+         palette = c("cornflowerblue", "dark red"),
+         add = "boxplot", add.params = list(fill = "white")) +
+  stat_compare_means(comparisons = list(c("WT","IRF8ko")), label = "p.signif")+labs(x ="") +theme(text = element_text(size=18), axis.text=element_text(size=14)) +theme(legend.position="none")
+ggsave(paste0(dir,"/Vln-Il10.png"), height=5, width=4, dpi=600)
+
+p2+p1+p3
+ggsave(paste0(dir,"/Vln-wt-irf.png"), height=3.5, width=10, dpi=600)
+
+?ggviolin
+
+```
+
+```{r}
+
+mac.wt <- subset(x=mac,subset=Experiment2=="WT")
+DefaultAssay(mac.wt) <- "RNA"
+mac.wt<- NormalizeData(mac.wt, normalization.method = "LogNormalize") 
+
+mac.irf <- subset(x=mac,subset=Experiment2=="IRF8ko")
+DefaultAssay(mac.irf) <- "RNA"
+mac.irf<- NormalizeData(mac.irf, normalization.method = "LogNormalize") 
+
+genes <- c(
+  "Cd9", "Pdgfb", "Cx3cr1", 
+  "Ccl2","Tnf", "Ccl4",
+  "Gpnmb", "Abcg1", "Ly6c2", "Thbs1",  
+  "Ctsk", "P2rx7", 
+  "Csf1r",  "Fos", "Maf", "Jun",
+  "Csf2rb", "Cd74", "Lyz1","Il1b",
+  "Il10", "Clec4d", "Cxcl1",  
+  "Gdf15", "Ednrb",
+  "Trim25", "Mmp19")
+
+surfacemarkers <- c("Lyve1", "Mertk", "Cd68","Cd209d", "Cd209a", "Clec10a", "Cd36", "Mrc1", "Cd209b", "Fcgrt", "Csf1r","Clec4a2", "Fcgr3", "Scarb2", "Fcgr2b", "Clec4a1", "Clec4n", "Clec4a3", "Clec2d", "Clec4d", "Clec4e", "Itgam", "Fcer1g", "Msr1", "Csf2rb2", "Ptprc", "Csf2rb", "Clec12a", "Cd74", "Ccr2")
+
+mycolors=c("#80c904",
+                    "#c38b72",
+                    "#d72631",
+                    "#077b8a",
+                    "#5c3c92",
+                    "#04d4f0",
+                    "#ffc13b",
+                    "#B25690",
+           "#8AB6F9")
+
+
+DotPlot(mac.wt, idents=c("0","1", "2", "3", "4", "5", "6", "7", "8"), features = genes, scale = T, cols = c("RdYlBu")) + geom_point(aes(size=pct.exp), shape = 21, colour="black", stroke=0.5) + guides(size=guide_legend(override.aes=list(shape=21, colour="black", fill="white"))) + xlab('Gene') +  ylab('Cluster')+ RotatedAxis() +scale_y_discrete(limits=rev)+ scale_x_discrete(limits=rev) +theme(axis.text.y=element_text(color=mycolors, size=14, face="bold"),axis.title = element_text(size=14),
+  panel.background = element_blank(),
+  panel.border = element_rect(fill = NA),
+  text = element_text(size = 12),
+  panel.grid.major.x = element_line(color = "grey80"),
+  panel.grid.major.y = element_line(color = "grey80") )
+ggsave(paste0(dir,"/DP-wt.png"), height=4.7, width=9, dpi=600)
+
+DotPlot(mac.irf, idents=c("0","1", "2", "3", "4", "5", "6", "7", "8"), features = genes, scale = T, cols = c("RdYlBu")) + geom_point(aes(size=pct.exp), shape = 21, colour="black", stroke=0.5) + guides(size=guide_legend(override.aes=list(shape=21, colour="black", fill="white"))) + xlab('Gene') +  ylab('Cluster')+ RotatedAxis() +scale_y_discrete(limits=rev)+ scale_x_discrete(limits=rev) +theme(axis.text.y=element_text(color=mycolors, size=14, face="bold"),axis.title = element_text(size=14),
+  panel.background = element_blank(),
+  panel.border = element_rect(fill = NA),
+  text = element_text(size = 12),
+  panel.grid.major.x = element_line(color = "grey80"),
+  panel.grid.major.y = element_line(color = "grey80") )
+ggsave(paste0(dir,"/DP-irf.png"), height=4, width=9, dpi=600)
+
+DotPlot(mac, idents=c("0","1", "2", "3", "4", "5", "6", "7", "8"), features = surfacemarkers, scale = T, cols = c("RdYlBu")) + geom_point(aes(size=pct.exp), shape = 21, colour="black", stroke=0.5) + guides(size=guide_legend(override.aes=list(shape=21, colour="black", fill="white"))) + xlab('Gene') +  ylab('Cluster')+ RotatedAxis() +scale_y_discrete(limits=rev)+ scale_x_discrete(limits=rev) +theme(axis.text.y=element_text(color=mycolors, size=14, face="bold"),axis.title = element_text(size=14),
+  panel.background = element_blank(),
+  panel.border = element_rect(fill = NA),
+  text = element_text(size = 12),
+  panel.grid.major.x = element_line(color = "grey80"),
+  panel.grid.major.y = element_line(color = "grey80") )
+ggsave(paste0(dir,"/DP-surfacemarkers.png"), height=4, width=9, dpi=600)
+
+
+```
+

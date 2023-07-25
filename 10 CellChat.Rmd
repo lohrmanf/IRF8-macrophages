@@ -1,0 +1,135 @@
+---
+title: "Untitled"
+output: html_document
+date: "2023-02-09"
+---
+
+```{r}
+library(CellChat)
+library(tidyverse)
+library(Seurat)
+library(patchwork)
+library(ggplot2)
+library(pander)
+
+options(stringsAsFactors = FALSE)
+
+dir <- "Results/10CellChat/WT"
+dir.create(dir)
+mac <- readRDS("Results/2.3Int_all/all_data.RDS")
+DefaultAssay(mac) <- "RNA"
+mac <- NormalizeData(mac, normalization.method="LogNormalize")
+mac <- subset(x=mac, idents=c('0', '1', '2', '3', '4', '5', '6', '7', '8'))
+
+unique(mac$seurat_clusters)
+
+mac<- RenameIdents(object=mac, '0'='WT0', '1'='WT1', '2'='WT2', '3'='WT3', '4'='WT4', '5'='WT5', '6'='WT6', '7'='WT7', '8'='WT8')
+
+unique(mac@active.ident)
+mac <- AddMetaData(object = mac, metadata = mac@active.ident, col.name = 'active.ident')
+
+mac.wt <- subset(x=mac, subset=Experiment2=="WT")
+
+cellchat.wt <- createCellChat(object = mac.wt, group.by = "active.ident")
+unique(cellchat.wt@idents)
+
+CellChatDB <- CellChatDB.mouse 
+showDatabaseCategory(CellChatDB)
+dplyr::glimpse(CellChatDB$interaction)
+CellChatDB.use <- CellChatDB
+cellchat.wt@DB <- CellChatDB.use
+
+cellchat.wt <- subsetData(cellchat.wt) 
+
+
+cellchat.wt <- identifyOverExpressedGenes(cellchat.wt)
+cellchat.wt <- identifyOverExpressedInteractions(cellchat.wt)
+
+# project gene expression data onto PPI (Optional: when running it, USER should set `raw.use = FALSE` in the function `computeCommunProb()` in order to use the projected data)
+# cellchat <- projectData(cellchat, PPI.human)
+
+cellchat.wt <- computeCommunProb(cellchat.wt)
+cellchat.wt <- filterCommunication(cellchat.wt, min.cells = 10)
+cellchat.wt <- computeCommunProbPathway(cellchat.wt)
+cellchat.wt <- aggregateNet(cellchat.wt)
+groupSize <- as.numeric(table(cellchat.wt@idents))
+cols=c("#8AB6F9",
+                       "#B25690",
+                       "#ffc13b",
+                      "#04d4f0",
+                       "#5c3c92",
+                       "#077b8a",
+                      "#d72631",
+                       "#c38b72", "#80c904")
+
+par(mfrow = c(1,1), xpd=TRUE)
+
+netVisual_circle(cellchat.wt@net$count,color.use =cols, vertex.weight = groupSize, weight.scale = T, label.edge= F, title.name = "Number of interactions")
+#ggsaveKmg2(paste0(dir, "/n_interactions.png"), height = 5, width = 5, dpi=600)
+netVisual_circle(cellchat.wt@net$weight, color.use =cols,vertex.weight = groupSize, weight.scale = T, label.edge= F, title.name = "Interaction weights/strength")
+#ggsave(paste0(dir, "/strength_interactions.png"), height = 5, width = 5, dpi=600)
+
+mat <- cellchat.wt@net$weight
+par(mfrow = c(3,3), xpd=TRUE)
+for (i in 1:nrow(mat)) {
+  mat2 <- matrix(0, nrow = nrow(mat), ncol = ncol(mat), dimnames = dimnames(mat))
+  mat2[i, ] <- mat[i, ]
+  netVisual_circle(mat2, vertex.weight = groupSize, color.use =cols, weight.scale = T, edge.weight.max = max(mat), title.name = rownames(mat)[i])
+}
+
+
+
+
+
+
+```
+
+
+```{r}
+par(mfrow=c(1,1))
+cellchat.wt@netP$pathways
+
+netVisual_aggregate(cellchat.wt,color.use =cols, signaling = "CCL", layout = "chord", pt.title = 1,
+  title.space = 16, vertex.label.cex = 1.2)
+netVisual_heatmap(cellchat.wt, color.use =cols, signaling = "CCL", color.heatmap = "YlOrRd", font.size = 10, font.size.title = 12)
+netAnalysis_contribution(cellchat.wt, signaling = "CCL", font.size = 12, font.size.title = 14)
+pairLR.CCL <- extractEnrichedLR(cellchat.wt, signaling = "CCL", geneLR.return = FALSE)
+netVisual_individual(cellchat.wt, signaling = "CCL", color.use =cols, pairLR.use = pairLR.CCL[9,], vertex.receiver = NA, layout="chord", pt.title = 1, title.space = 16, vertex.label.cex = 1.2)
+netVisual_individual(cellchat.wt, signaling = "CCL", color.use =cols, pairLR.use = pairLR.CCL[5,], vertex.receiver = NA, layout="chord", pt.title = 1, title.space = 16, vertex.label.cex = 1.2)
+
+?netAnalysis_contribution
+
+netVisual_aggregate(cellchat.wt,color.use =cols, signaling = "TNF", layout = "chord", pt.title = 1,
+  title.space = 16, vertex.label.cex = 1.2)
+netVisual_heatmap(cellchat.wt, color.use =cols, signaling = "TNF", color.heatmap = c("cornflowerblue", "dark red"))
+netAnalysis_contribution(cellchat.wt, signaling = "TNF")
+pairLR.TNF <- extractEnrichedLR(cellchat.wt, signaling = "TNF", geneLR.return = FALSE)
+View(pairLR.TNF)
+
+netVisual_aggregate(cellchat.wt,color.use =cols, signaling = "TGFb", layout = "chord")
+netVisual_heatmap(cellchat.wt, color.use =cols, signaling = "TGFb", color.heatmap = c("cornflowerblue", "dark red"))
+netAnalysis_contribution(cellchat.wt, signaling = "TGFb")
+pairLR.TGFb <- extractEnrichedLR(cellchat.wt, signaling = "TGFb", geneLR.return = FALSE)
+View(pairLR.TGFb)
+
+netVisual_aggregate(cellchat.wt,color.use =cols, signaling = "IL10", layout = "chord")
+netVisual_heatmap(cellchat.wt, color.use =cols, signaling = "IL10", color.heatmap = c("cornflowerblue", "dark red"))
+netAnalysis_contribution(cellchat.wt, signaling = "IL10")
+pairLR.IL10 <- extractEnrichedLR(cellchat.wt, signaling = "IL10", geneLR.return = FALSE)
+View(pairLR.IL10)
+
+
+```
+
+```{r}
+cellchat.wt <- netAnalysis_computeCentrality(cellchat.wt,slot.name = "netP")
+ht1 <- netAnalysis_signalingRole_heatmap(cellchat.wt, pattern = "outgoing", color.use =cols, color.heatmap = "YlOrRd", font.size = 12, font.size.title = 18, width = 8, height = 10)
+ht2 <- netAnalysis_signalingRole_heatmap(cellchat.wt, pattern = "incoming", color.use =cols, color.heatmap = "YlOrRd", font.size = 12, font.size.title = 18, width = 8, height = 10)
+ht1 + ht2
+#export width 980
+
+
+```
+
+
+

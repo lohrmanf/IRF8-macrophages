@@ -1,0 +1,96 @@
+---
+title: "data_setup"
+output: html_document
+date: '2022-06-10'
+---
+
+```{r setup, include=FALSE}
+
+
+library(Matrix)
+
+dir<-"Results/Velocyto-files"
+dir.create(dir)
+
+D <- readRDS("Intron-Exon/7D_mapping.dgecounts.rds")
+genes.map.D <- read.delim("Intron-Exon/7D_mapping.gene_names.txt", header=T)
+
+exclude.D <- c("Arhgap26", "Atp5o", "1700030C10Rik", "Aldoa", "Ccl19", "Fam220a", "Gcat", "Gm16364", "Gm35558", "Gm36638", "Gm4430", "Il11ra2", "Ndor1", "Ptp4a1", "Tmem147os")
+genes.map.D <- subset(genes.map.D, !genes.map.D$gene_name %in% exclude.D)
+
+rownames(genes.map.D) <- genes.map.D$gene_id
+
+D.intron <- as.data.frame(as.matrix(D$umicount$intron$all))
+D.exon <- as.data.frame(as.matrix(D$umicount$exon$all))
+
+D.intron.merge <- merge(genes.map.D, D.intron, by = "row.names")
+View(D.intron.merge[c(1:5), (1:5)])
+rownames(D.intron.merge) <- D.intron.merge$gene_name
+D.intron.merge$Row.names <- NULL
+D.intron.merge$gene_id <- NULL
+D.intron.merge$gene_name <- NULL
+D.intron <- t(D.intron.merge)
+View(D.intron[c(1:5), (1:5)])
+D.intron <- as(D.intron, "dgCMatrix")
+
+D.exon.merge <- merge(genes.map.D, D.exon, by = "row.names")
+View(D.exon.merge[c(1:5), (1:5)])
+rownames(D.exon.merge) <- D.exon.merge$gene_name
+D.exon.merge$Row.names <- NULL
+D.exon.merge$gene_id <- NULL
+D.exon.merge$gene_name <- NULL
+D.exon <- t(D.exon.merge)
+View(D.exon[c(1:5), (1:5)])
+D.exon <- as(D.exon, "dgCMatrix")
+
+writeMM(D.intron, file="Results/Velocyto-files/D_intron.mtx")
+write(x=colnames(D.intron), file= "Results/Velocyto-files/genes_D_intron.txt")
+write(x=rownames(D.intron), file= "Results/Velocyto-files/barcodes_D_intron.txt")
+writeMM(D.exon, file="Results/Velocyto-files/D_exon.mtx")
+write(x=colnames(D.exon), file= "Results/Velocyto-files/genes_D_exon.txt")
+write(x=rownames(D.exon), file= "Results/Velocyto-files/barcodes_D_exon.txt")
+
+
+R <- readRDS("Intron-Exon/8R_mapping.dgecounts.rds")
+genes.map.R <- read.delim("Intron-Exon/8R_mapping.gene_names.txt", header=T)
+
+exclude.R <- c("Arhgap26", "Gm5089", "1600017P15Rik", "1700030C10Rik", "Ccl19", "Fam220a", "Gm16364", "Gm35558", "Gm4430", "Il11ra2", "Ndor1", "Ptp4a1", "Tmem147os", "Zkscan7")
+genes.map.R <- subset(genes.map.R, !genes.map.R$gene_name %in% exclude.R)
+
+rownames(genes.map.R) <- genes.map.R$gene_id
+
+R.intron <- as.data.frame(as.matrix(R$umicount$intron$all))
+R.exon <- as.data.frame(as.matrix(R$umicount$exon$all))
+
+R.intron.merge <- merge(genes.map.R, R.intron, by = "row.names")
+View(R.intron.merge[c(1:5), (1:5)])
+rownames(R.intron.merge) <- R.intron.merge$gene_name
+R.intron.merge$Row.names <- NULL
+R.intron.merge$gene_id <- NULL
+R.intron.merge$gene_name <- NULL
+R.intron <- t(R.intron.merge)
+View(R.intron[c(1:5), (1:5)])
+R.intron <- as(R.intron, "dgCMatrix")
+
+R.exon.merge <- merge(genes.map.R, R.exon, by = "row.names")
+View(R.exon.merge[c(1:5), (1:5)])
+rownames(R.exon.merge) <- R.exon.merge$gene_name
+R.exon.merge$Row.names <- NULL
+R.exon.merge$gene_id <- NULL
+R.exon.merge$gene_name <- NULL
+R.exon <- t(R.exon.merge)
+View(R.exon[c(1:5), (1:5)])
+R.exon <- as(R.exon, "dgCMatrix")
+
+writeMM(R.intron, file="Results/Velocyto-files/R_intron.mtx")
+write(x=colnames(R.intron), file= "Results/Velocyto-files/genes_R_intron.txt")
+write(x=rownames(R.intron), file= "Results/Velocyto-files/barcodes_R_intron.txt")
+
+writeMM(R.exon, file="Results/Velocyto-files/R_exon.mtx")
+write(x=colnames(R.exon), file= "Results/Velocyto-files/genes_R_exon.txt")
+write(x=rownames(R.exon), file= "Results/Velocyto-files/barcodes_R_exon.txt")
+
+
+```
+
+

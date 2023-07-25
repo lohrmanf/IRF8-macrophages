@@ -1,0 +1,91 @@
+---
+title: "2.3Int_all"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+# Integrate new data with wt and irf8 data from previous experiment
+```{r}
+library(Seurat)
+library(ggplot2)
+library(openxlsx)
+library(Matrix)
+dir <- "Results/2.3Int_all"
+dir.create(dir)
+
+# I samples
+I <- readRDS("Results/1ReadinData/I.RDS")
+I[["percent.mt"]] <- PercentageFeatureSet(I, pattern = "^mt-")
+I <- subset(I, subset= percent.mt<5 & nFeature_RNA>200 & nFeature_RNA<5000)
+I <- subset(I, subset= Zbtb46 <2 & Cpa3 <2) 
+
+
+# N samples
+N <- readRDS("Results/1ReadinData/N.RDS")
+N[["percent.mt"]] <- PercentageFeatureSet(N, pattern = "^mt-")
+N <- subset(N, subset= percent.mt<5 & nFeature_RNA>200 & nFeature_RNA<5000)
+N <- subset(N, subset= Zbtb46 <2 & Cpa3 <2)
+
+#wt sample
+wt <- readRDS("Q:/CCI-T-AG-Henneke/Mitarbeiter/Florens/scRNA/wt_irf/Experiment1_wt_irf/data_setup/wt.RDS")
+wt[["percent.mt"]] <- PercentageFeatureSet(wt, pattern = "^mt-")
+wt <- subset(wt, subset= percent.mt<5 & nFeature_RNA>200 & nFeature_RNA<5000)
+wt <- subset(wt, subset= Zbtb46 <2 & Cpa3 <2)
+
+#irf sample
+irf <- readRDS("Q:/CCI-T-AG-Henneke/Mitarbeiter/Florens/scRNA/wt_irf/Experiment1_wt_irf/data_setup/irf.RDS")
+irf[["percent.mt"]] <- PercentageFeatureSet(irf, pattern = "^mt-")
+irf <- subset(irf, subset= percent.mt<5 & nFeature_RNA>200 & nFeature_RNA<5000)
+irf <- subset(irf, subset= Zbtb46 <2 & Cpa3 <2)
+
+```
+
+# Integrate 
+```{r}
+# Make list of all data sets
+mac.list <- list(irf, I, wt, N)
+
+# run sctransform and integrate data sets
+mac.list <- lapply(X=mac.list, FUN= SCTransform)
+features <- SelectIntegrationFeatures(object.list = mac.list, nfeatures=2000)
+mac.list <- PrepSCTIntegration(object.list = mac.list, anchor.features = features)
+
+mac.anchors <- FindIntegrationAnchors(object.list = mac.list, normalization.method = "SCT", reduction="cca", anchor.features = features)
+
+mac.combined <- IntegrateData(anchorset = mac.anchors, normalization.method = "SCT")
+
+# add a combined ident in metadata
+mac.combined@meta.data$Experiment[(mac.combined@meta.data$orig.ident)=="mac-wt"] <- "WT"
+mac.combined@meta.data$Experiment[(mac.combined@meta.data$orig.ident)=="mac-irf8"] <- "IRF8ko"
+mac.combined@meta.data$Experiment2 <- mac.combined@meta.data$Experiment
+mac.combined@meta.data$Experiment2[(mac.combined@meta.data$Experiment)=="I"] <- "IRF8ko"
+mac.combined@meta.data$Experiment2[(mac.combined@meta.data$Experiment)=="N"] <- "WT"
+
+# PCA And UMAP
+mac.combined <- RunPCA(mac.combined, verbose=FALSE)
+mac.combined <- RunUMAP(mac.combined, reduction = "pca", dims=1:30)
+
+# Plot
+DimPlot(mac.combined, reduction = "umap")
+ggsave(paste0(dir,"/umap.pdf"), height=5, width=8)
+
+# Find cluster
+
+
+mac.combined <- FindNeighbors(mac.combined, dims=1:30)
+mac.combined <- FindClusters(mac.combined, dims=1:30, resolution= 0.45, random.seed=0)
+
+DimPlot(mac.combined, split.by="Experiment2", reduction = "umap", label=TRUE)
+
+mac.combined$Experiment2 <- factor(x = mac.combined$Experiment2, levels = c("WT", "IRF8ko"))
+
+Cluster.Distribution <- as.data.frame.matrix(prop.table(table(Idents(mac.combined), mac.combined$orig.ident), margin=2))
+Cluster.Distribution <- round(Cluster.Distribution, 4)
+write.xlsx(Cluster.Distribution, paste0(dir,"/cl_prop_splitbyorigident.xlsx"), rowNames=TRUE)
+
+saveRDS(mac.combined, paste0(dir,"/all_data.RDS"))
+
+```
+
+

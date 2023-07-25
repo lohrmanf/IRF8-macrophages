@@ -1,0 +1,63 @@
+---
+title: "3FindMarkers"
+output: html_document
+---
+
+```{r}
+#rm(list = ls())
+library(Seurat)
+library(dplyr)
+library(openxlsx)
+
+dir <- "Results/3FindMarkers"
+dir.create(dir)
+
+
+mac <- readRDS("Results/2.3Int_all/all_data.RDS")
+DefaultAssay(mac) <- "RNA"
+mac <- NormalizeData(mac, normalization.method = "LogNormalize")
+
+mac.wt <- subset(x=mac, subset=Experiment2 == "WT")
+mac.wt<- NormalizeData(mac.wt, normalization.method = "LogNormalize") 
+
+mac.irf <- subset(x=mac, subset=Experiment2 == "IRF8ko")
+mac.irf<- NormalizeData(mac.irf, normalization.method = "LogNormalize") 
+
+
+
+
+```
+
+
+```{r}
+
+```
+
+
+# irf
+```{r}
+#Find markers for every cluster compared to all remaining cells
+irf.markers <- FindAllMarkers(mac.irf, only.pos = F, min.pct = 0.25, logfc.threshold = 0.25)
+
+saveRDS(irf.markers, paste0(dir,"/irf.markers.RDS"))
+write.xlsx(irf.markers, paste0(dir,"/irf.markers.xlsx"))
+
+irf.markers.toplist <- irf.markers %>%
+                            group_by(cluster) %>%
+                            slice_max(n = 30, order_by = avg_log2FC)
+write.xlsx(irf.markers.toplist, paste0(dir,"/irf.markers.toplist.xlsx"))
+```
+
+# wt
+```{r}
+#Find markers for every cluster compared to all remaining cells
+wt.markers <- FindAllMarkers(mac.wt, only.pos = F, min.pct = 0.25, logfc.threshold = 0.25)
+
+saveRDS(wt.markers, paste0(dir,"/wt.markers.RDS"))
+write.xlsx(wt.markers, paste0(dir,"/wt.markers.xlsx"))
+
+wt.markers.toplist <- wt.markers %>%
+                            group_by(cluster) %>%
+                            slice_max(n = 30, order_by = avg_log2FC)
+write.xlsx(wt.markers.toplist, paste0(dir,"/wt.markers.toplist.xlsx"))
+```

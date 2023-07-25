@@ -1,0 +1,183 @@
+---
+title: "1ReadinData"
+output: html_document
+---
+
+```{r}
+#no cells in D1
+
+library(Seurat)
+dir <- "Results/1ReadinData"
+dir.create(dir)
+
+D_S2.data <- Read10X(data.dir= "Q:/CCI-T-AG-Henneke/Mitarbeiter/Florens/scRNA/TX/D/outs/per_sample_outs/sample2/count/sample_feature_bc_matrix")
+D_S2 <- CreateSeuratObject(counts = D_S2.data$`Gene Expression`, project = "D-S2", min.cells = 3, min.features = 200)
+#Add meta data
+#What sample?
+sample.info = data.frame(sample = sample(x=c("D-S2"),size=length(colnames(x=D_S2)),replace=TRUE),row.names=colnames(D_S2))
+D_S2 = AddMetaData(object=D_S2, metadata= sample.info, col.name='sample.info')
+
+
+D_S3.data <- Read10X(data.dir= "Q:/CCI-T-AG-Henneke/Mitarbeiter/Florens/scRNA/TX/D/outs/per_sample_outs/sample3/count/sample_feature_bc_matrix")
+D_S3 <- CreateSeuratObject(counts = D_S3.data$`Gene Expression`, project = "D-S3", min.cells = 3, min.features = 200)
+#Add meta data
+#What sample?
+sample.info = data.frame(sample = sample(x=c("D-S3"),size=length(colnames(x=D_S3)),replace=TRUE),row.names=colnames(D_S3))
+D_S3 = AddMetaData(object=D_S3, metadata= sample.info, col.name='sample.info')
+
+
+D_S4.data <- Read10X(data.dir= "Q:/CCI-T-AG-Henneke/Mitarbeiter/Florens/scRNA/TX/D/outs/per_sample_outs/sample4/count/sample_feature_bc_matrix")
+D_S4 <- CreateSeuratObject(counts = D_S4.data$`Gene Expression`, project = "D-S4", min.cells = 3, min.features = 200)
+#Add meta data
+#What sample?
+sample.info = data.frame(sample = sample(x=c("D-S4"),size=length(colnames(x=D_S4)),replace=TRUE),row.names=colnames(D_S4))
+D_S4 = AddMetaData(object=D_S4, metadata= sample.info, col.name='sample.info')
+
+
+D_S5.data <- Read10X(data.dir= "Q:/CCI-T-AG-Henneke/Mitarbeiter/Florens/scRNA/TX/D/outs/per_sample_outs/sample5/count/sample_feature_bc_matrix")
+D_S5 <- CreateSeuratObject(counts = D_S5.data$`Gene Expression`, project = "D-S5", min.cells = 3, min.features = 200)
+#Add meta data
+#What sample?
+sample.info = data.frame(sample = sample(x=c("D-S5"),size=length(colnames(x=D_S5)),replace=TRUE),row.names=colnames(D_S5))
+D_S5 = AddMetaData(object=D_S5, metadata= sample.info, col.name='sample.info')
+
+
+D_S6.data <- Read10X(data.dir= "Q:/CCI-T-AG-Henneke/Mitarbeiter/Florens/scRNA/TX/D/outs/per_sample_outs/sample6/count/sample_feature_bc_matrix")
+D_S6 <- CreateSeuratObject(counts = D_S6.data$`Gene Expression`, project = "D-S6", min.cells = 3, min.features = 200)
+#Add meta data
+#What sample?
+sample.info = data.frame(sample = sample(x=c("D-S6"),size=length(colnames(x=D_S6)),replace=TRUE),row.names=colnames(D_S6))
+D_S6 = AddMetaData(object=D_S6, metadata= sample.info, col.name='sample.info')
+
+
+D_S7.data <- Read10X(data.dir= "Q:/CCI-T-AG-Henneke/Mitarbeiter/Florens/scRNA/TX/D/outs/per_sample_outs/sample7/count/sample_feature_bc_matrix")
+D_S7 <- CreateSeuratObject(counts = D_S7.data$`Gene Expression`, project = "D-S7", min.cells = 3, min.features = 200)
+#Add meta data
+#What sample?
+sample.info = data.frame(sample = sample(x=c("D-S7"),size=length(colnames(x=D_S7)),replace=TRUE),row.names=colnames(D_S7))
+D_S7 = AddMetaData(object=D_S7, metadata= sample.info, col.name='sample.info')
+
+
+D_S8.data <- Read10X(data.dir= "Q:/CCI-T-AG-Henneke/Mitarbeiter/Florens/scRNA/TX/D/outs/per_sample_outs/sample8/count/sample_feature_bc_matrix")
+D_S8 <- CreateSeuratObject(counts = D_S8.data$`Gene Expression`, project = "D-S8", min.cells = 3, min.features = 200)
+#Add meta data
+#What sample?
+sample.info = data.frame(sample = sample(x=c("D-S8"),size=length(colnames(x=D_S8)),replace=TRUE),row.names=colnames(D_S8))
+D_S8 = AddMetaData(object=D_S8, metadata= sample.info, col.name='sample.info')
+
+
+D4 <- merge(D_S2, y = c(D_S3, D_S4), add.cell.ids = c("D_S2", "D_S3", "D_S4"), project = "D4")
+D4 <- AddMetaData(object = D4, metadata = rep("D4", length=nrow(D4@meta.data)),col.name = 'Experiment')
+
+D16 <- merge(D_S5, y = c(D_S6, D_S7, D_S8), add.cell.ids = c("D_S5", "D_S6", "D_S7", "D_S8"), project = "D16")
+D16 <- AddMetaData(object = D16, metadata = rep("D16", length=nrow(D16@meta.data)),col.name = 'Experiment')
+
+#How many cells per replicate?
+table(D4$orig.ident)
+table(D16$orig.ident)
+
+#head(D_S2@meta.data)
+#head(D4@meta.data)
+#head(D16@meta.data)
+
+saveRDS(D4, paste0(dir,"/D4.RDS"))
+saveRDS(D16, paste0(dir,"/D16.RDS"))
+
+saveRDS(D_S2, paste0(dir,"/D_S2.RDS"))
+saveRDS(D_S3, paste0(dir,"/D_S3.RDS"))
+saveRDS(D_S4, paste0(dir,"/D_S4.RDS"))
+saveRDS(D_S5, paste0(dir,"/D_S5.RDS"))
+saveRDS(D_S6, paste0(dir,"/D_S6.RDS"))
+saveRDS(D_S7, paste0(dir,"/D_S7.RDS"))
+saveRDS(D_S8, paste0(dir,"/D_S8.RDS"))
+
+
+
+R_S1.data <- Read10X(data.dir= "Q:/CCI-T-AG-Henneke/Mitarbeiter/Florens/scRNA/TX/R/outs/per_sample_outs/sample1/count/sample_feature_bc_matrix")
+R_S1 <- CreateSeuratObject(counts = R_S1.data$`Gene Expression`, project = "R-S1", min.cells = 3, min.features = 200)
+#Add meta data
+#What sample?
+sample.info = data.frame(sample = sample(x=c("R-S1"),size=length(colnames(x=R_S1)),replace=TRUE),row.names=colnames(R_S1))
+R_S1 = AddMetaData(object=R_S1, metadata= sample.info, col.name='sample.info')
+
+R_S2.data <- Read10X(data.dir= "Q:/CCI-T-AG-Henneke/Mitarbeiter/Florens/scRNA/TX/R/outs/per_sample_outs/sample2/count/sample_feature_bc_matrix")
+R_S2 <- CreateSeuratObject(counts = R_S2.data$`Gene Expression`, project = "R-S2", min.cells = 3, min.features = 200)
+#Add meta data
+#What sample?
+sample.info = data.frame(sample = sample(x=c("R-S2"),size=length(colnames(x=R_S2)),replace=TRUE),row.names=colnames(R_S2))
+R_S2 = AddMetaData(object=R_S2, metadata= sample.info, col.name='sample.info')
+
+
+R_S3.data <- Read10X(data.dir= "Q:/CCI-T-AG-Henneke/Mitarbeiter/Florens/scRNA/TX/R/outs/per_sample_outs/sample3/count/sample_feature_bc_matrix")
+R_S3 <- CreateSeuratObject(counts = R_S3.data$`Gene Expression`, project = "R-S3", min.cells = 3, min.features = 200)
+#Add meta data
+#What sample?
+sample.info = data.frame(sample = sample(x=c("R-S3"),size=length(colnames(x=R_S3)),replace=TRUE),row.names=colnames(R_S3))
+R_S3 = AddMetaData(object=R_S3, metadata= sample.info, col.name='sample.info')
+
+
+R_S4.data <- Read10X(data.dir= "Q:/CCI-T-AG-Henneke/Mitarbeiter/Florens/scRNA/TX/R/outs/per_sample_outs/sample4/count/sample_feature_bc_matrix")
+R_S4 <- CreateSeuratObject(counts = R_S4.data$`Gene Expression`, project = "R-S4", min.cells = 3, min.features = 200)
+#Add meta data
+#What sample?
+sample.info = data.frame(sample = sample(x=c("R-S4"),size=length(colnames(x=R_S4)),replace=TRUE),row.names=colnames(R_S4))
+R_S4 = AddMetaData(object=R_S4, metadata= sample.info, col.name='sample.info')
+
+
+#no cells in R5
+
+R_S6.data <- Read10X(data.dir= "Q:/CCI-T-AG-Henneke/Mitarbeiter/Florens/scRNA/TX/R/outs/per_sample_outs/sample6/count/sample_feature_bc_matrix")
+R_S6 <- CreateSeuratObject(counts = R_S6.data$`Gene Expression`, project = "R-S6", min.cells = 3, min.features = 200)
+#Add meta data
+#What sample?
+sample.info = data.frame(sample = sample(x=c("R-S6"),size=length(colnames(x=R_S6)),replace=TRUE),row.names=colnames(R_S6))
+R_S6 = AddMetaData(object=R_S6, metadata= sample.info, col.name='sample.info')
+
+
+R_S7.data <- Read10X(data.dir= "Q:/CCI-T-AG-Henneke/Mitarbeiter/Florens/scRNA/TX/R/outs/per_sample_outs/sample7/count/sample_feature_bc_matrix")
+R_S7 <- CreateSeuratObject(counts = R_S7.data$`Gene Expression`, project = "R-S7", min.cells = 3, min.features = 200)
+#Add meta data
+#What sample?
+sample.info = data.frame(sample = sample(x=c("R-S7"),size=length(colnames(x=R_S7)),replace=TRUE),row.names=colnames(R_S7))
+R_S7 = AddMetaData(object=R_S7, metadata= sample.info, col.name='sample.info')
+
+
+R_S8.data <- Read10X(data.dir= "Q:/CCI-T-AG-Henneke/Mitarbeiter/Florens/scRNA/TX/R/outs/per_sample_outs/sample8/count/sample_feature_bc_matrix")
+R_S8 <- CreateSeuratObject(counts = R_S8.data$`Gene Expression`, project = "R-S8", min.cells = 3, min.features = 200)
+#Add meta data
+#What sample?
+sample.info = data.frame(sample = sample(x=c("R-S8"),size=length(colnames(x=R_S8)),replace=TRUE),row.names=colnames(R_S8))
+R_S8 = AddMetaData(object=R_S8, metadata= sample.info, col.name='sample.info')
+
+
+R4 <- merge(R_S1, y = c(R_S2, R_S3, R_S4), add.cell.ids = c("R_S1", "R_S2", "R_S3", "R_S4"), project = "R4")
+R4 <- AddMetaData(object = R4, metadata = rep("R4", length=nrow(R4@meta.data)),col.name = 'Experiment')
+
+R16 <- merge(R_S6, y = c(R_S7, R_S8), add.cell.ids = c("R_S6", "R_S7", "R_S8"), project = "R16")
+R16 <- AddMetaData(object = R16, metadata = rep("R16", length=nrow(R16@meta.data)),col.name = 'Experiment')
+
+#How many cells per replicate?
+table(R4$orig.ident)
+table(R16$orig.ident)
+
+#head(D_S2@meta.data)
+#head(D4@meta.data)
+#head(D16@meta.data)
+
+saveRDS(R4, paste0(dir,"/R4.RDS"))
+saveRDS(R16, paste0(dir,"/R16.RDS"))
+
+saveRDS(R_S1, paste0(dir,"/R_S1.RDS"))
+saveRDS(R_S2, paste0(dir,"/R_S2.RDS"))
+saveRDS(R_S3, paste0(dir,"/R_S3.RDS"))
+saveRDS(R_S4, paste0(dir,"/R_S4.RDS"))
+saveRDS(R_S6, paste0(dir,"/R_S6.RDS"))
+saveRDS(R_S7, paste0(dir,"/R_S7.RDS"))
+saveRDS(R_S8, paste0(dir,"/R_S8.RDS"))
+
+
+
+
+```
+
+```

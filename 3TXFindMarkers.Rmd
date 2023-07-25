@@ -1,0 +1,41 @@
+---
+title: "3FindMarkers"
+output: html_document
+---
+
+```{r}
+
+library(Seurat)
+library(dplyr)
+library(openxlsx)
+
+dir <- "Results/3TXFindMarkers"
+dir.create(dir)
+
+TX <- readRDS(paste0("Results/2.2TXnoint/TXnoint-crop.RDS"))
+TX<- NormalizeData(TX, normalization.method = "LogNormalize")
+
+#Find markers for every cluster compared to all remaining cells
+TX.markers <- FindAllMarkers(TX, only.pos = FALSE, logfc.threshold = 0.25)
+TX.markers.pos <- FindAllMarkers(TX, only.pos = TRUE, logfc.threshold = 0.25)
+
+
+saveRDS(TX.markers, paste0(dir,"/TX.markers.RDS"))
+saveRDS(TX.markers.pos, paste0(dir,"/TX.markers.pos.RDS"))
+
+write.xlsx(TX.markers, paste0(dir,"/TX.markers.xlsx"))
+write.xlsx(TX.markers.pos, paste0(dir,"/TX.markers.pos.xlsx"))
+
+TX.markers.toplist <- TX.markers %>%
+                            group_by(cluster) %>%
+                            slice_max(n = 50, order_by = avg_log2FC)
+write.xlsx(TX.markers.toplist, paste0(dir,"/TX.markers.toplist.xlsx"))
+
+TX.markers.pos.toplist <- TX.markers.pos %>%
+                            group_by(cluster) %>%
+                            slice_max(n = 50, order_by = avg_log2FC)
+write.xlsx(TX.markers.pos.toplist, paste0(dir,"/TX.markers.pos.toplist.xlsx"))
+
+```
+
+

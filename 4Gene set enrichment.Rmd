@@ -1,0 +1,329 @@
+---
+title: "Gene set enrichment"
+output: html_document
+date: '2022-09-28'
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+
+library(clusterProfiler)
+library(org.Mm.eg.db)
+library(Seurat)
+library(tidyverse)
+library(patchwork)
+library(ggpubr)
+
+
+dir <- "Results/gene set enrichment"
+dir.create(dir)
+
+TX <- readRDS(paste0("Results/2.2TXnoint/TXnoint-crop.RDS"))
+TX<- NormalizeData(TX, normalization.method="LogNormalize")
+
+cl0.markers <- FindMarkers(TX, ident.1 = 0, logfc.threshold = 0.25)
+cl1.markers <- FindMarkers(TX, ident.1 = 1, logfc.threshold = 0.25)
+cl2.markers <- FindMarkers(TX, ident.1 = 2, logfc.threshold = 0.25)
+cl3.markers <- FindMarkers(TX, ident.1 = 3, logfc.threshold = 0.25)
+cl4.markers <- FindMarkers(TX, ident.1 = 4, logfc.threshold = 0.25)
+cl5.markers <- FindMarkers(TX, ident.1 = 5, logfc.threshold = 0.25)
+cl6.markers <- FindMarkers(TX, ident.1 = 6, logfc.threshold = 0.25)
+cl7.markers <- FindMarkers(TX, ident.1 = 7, logfc.threshold = 0.25)
+cl8.markers <- FindMarkers(TX, ident.1 = 8, logfc.threshold = 0.25)
+
+```
+
+```{r}
+saveRDS(cl0.markers, paste0(dir,"/cl0.RDS"))
+saveRDS(cl1.markers, paste0(dir,"/cl1.RDS"))
+saveRDS(cl2.markers, paste0(dir,"/cl2.RDS"))
+saveRDS(cl3.markers, paste0(dir,"/cl3.RDS"))
+saveRDS(cl4.markers, paste0(dir,"/cl4.RDS"))
+saveRDS(cl5.markers, paste0(dir,"/cl5.RDS"))
+saveRDS(cl6.markers, paste0(dir,"/cl6.RDS"))
+saveRDS(cl7.markers, paste0(dir,"/cl7.RDS"))
+saveRDS(cl8.markers, paste0(dir,"/cl8.RDS"))
+
+cl0.markers <- readRDS("Results/gene set enrichment/cl0.RDS")
+cl1.markers <- readRDS("Results/gene set enrichment/cl1.RDS")
+cl2.markers <- readRDS("Results/gene set enrichment/cl2.RDS")
+cl3.markers <- readRDS("Results/gene set enrichment/cl3.RDS")
+cl4.markers <- readRDS("Results/gene set enrichment/cl4.RDS")
+cl5.markers <- readRDS("Results/gene set enrichment/cl5.RDS")
+cl6.markers <- readRDS("Results/gene set enrichment/cl6.RDS")
+cl7.markers <- readRDS("Results/gene set enrichment/cl7.RDS")
+cl8.markers <- readRDS("Results/gene set enrichment/cl8.RDS")
+```
+
+
+
+```{r}
+#cluster 0
+eg = bitr(rownames(cl0.markers), fromType="SYMBOL", toType="ENTREZID", OrgDb="org.Mm.eg.db")
+eg <- subset(eg,!duplicated(eg$SYMBOL))
+row.names(eg) <- eg$SYMBOL
+eg$SYMBOL <- NULL
+diffexpgenes.cl0 <- merge(cl0.markers, eg, by = "row.names")
+rownames(diffexpgenes.cl0) <- diffexpgenes.cl0$Row.names
+diffexpgenes.cl0$Row.names <- NULL
+
+fc <- diffexpgenes.cl0$avg_log2FC
+names(fc) <- diffexpgenes.cl0$ENTREZID
+fc <- sort(fc, decreasing = T)
+
+gse0 <- gseGO(geneList=fc, 
+             minGSSize = 5, 
+             maxGSSize = 800, 
+             OrgDb = "org.Mm.eg.db")
+
+write.csv2(gse0, "Results/gene set enrichment/gse0.csv")
+
+g0<- dotplot(gse0, showCategory=c("cell morphogenesis", "acute inflammatory response", "complement activation", "interleukin-1 beta production"), split=".sign", font=14, title="Cluster T0") + facet_grid(.~.sign)+ scale_colour_gradientn(colours = c("red4", "cornflowerblue"))+theme(plot.title= element_text(size=20, colour = "#8bd346")) 
+g0
+ggsave(paste0(dir,"/GSEAdot.select.cl0.png"), height=3.5, width=6.6, dpi=600)
+```
+
+
+```{r}
+#Cluster1
+eg = bitr(rownames(cl1.markers), fromType="SYMBOL", toType="ENTREZID", OrgDb="org.Mm.eg.db")
+eg <- subset(eg,!duplicated(eg$SYMBOL))
+row.names(eg) <- eg$SYMBOL
+eg$SYMBOL <- NULL
+diffexpgenes.cl1 <- merge(cl1.markers, eg, by = "row.names")
+rownames(diffexpgenes.cl1) <- diffexpgenes.cl1$Row.names
+diffexpgenes.cl1$Row.names <- NULL
+
+fc <- diffexpgenes.cl1$avg_log2FC
+names(fc) <- diffexpgenes.cl1$ENTREZID
+fc <- sort(fc, decreasing = T)
+
+
+gse1 <- gseGO(geneList=fc, 
+             minGSSize = 5, 
+             maxGSSize = 800, 
+             OrgDb = "org.Mm.eg.db")
+
+write.csv2(gse1, "Results/gene set enrichment/gse1.csv")
+
+g1<- dotplot(gse1, showCategory=c("acute inflammatory response", "wound healing", "positive regulation of T-helper 17 type immune response", "response to interleukin-1", "tumor necrosis factor production"), split=".sign", font=14, title="Cluster T1") + facet_grid(.~.sign)+ scale_colour_gradientn(colours = c("red4", "cornflowerblue"))+theme(plot.title= element_text(size=20, colour = "#d64e12")) 
+g1
+ggsave(paste0(dir,"/GSEAdot.select.cl1.png"), height=3.5, width=6.6, dpi=600)
+```
+
+
+```{r}
+#cluster 2
+eg = bitr(rownames(cl2.markers), fromType="SYMBOL", toType="ENTREZID", OrgDb="org.Mm.eg.db")
+eg <- subset(eg,!duplicated(eg$SYMBOL))
+row.names(eg) <- eg$SYMBOL
+eg$SYMBOL <- NULL
+diffexpgenes.cl2 <- merge(cl2.markers, eg, by = "row.names")
+rownames(diffexpgenes.cl2) <- diffexpgenes.cl2$Row.names
+diffexpgenes.cl2$Row.names <- NULL
+
+fc <- diffexpgenes.cl2$avg_log2FC
+names(fc) <- diffexpgenes.cl2$ENTREZID
+fc <- sort(fc, decreasing = T)
+
+
+gse2 <- gseGO(geneList=fc, 
+             minGSSize = 5, 
+             maxGSSize = 800, 
+             OrgDb = "org.Mm.eg.db")
+
+write.csv2(gse2, "Results/gene set enrichment/gse2.csv")
+
+g2<- dotplot(gse2, showCategory=c("positive regulation of pattern recognition receptor signaling pathway", "cell communication", "cell surface receptor signaling pathway",
+ "innate immune response", "MHC class II protein complex assembly"), split=".sign", font=14, title="Cluster T2") + facet_grid(.~.sign)+ scale_colour_gradientn(colours = c("red4", "cornflowerblue"))+theme(plot.title= element_text(size=20, colour = "#60dbe8")) 
+g2
+ggsave(paste0(dir,"/GSEAdot.select.cl2.png"), height=5, width=6.6, dpi=600)
+
+```
+
+
+```{r}
+#cluster 3
+eg = bitr(rownames(cl3.markers), fromType="SYMBOL", toType="ENTREZID", OrgDb="org.Mm.eg.db")
+eg <- subset(eg,!duplicated(eg$SYMBOL))
+row.names(eg) <- eg$SYMBOL
+eg$SYMBOL <- NULL
+diffexpgenes.cl3 <- merge(cl3.markers, eg, by = "row.names")
+rownames(diffexpgenes.cl3) <- diffexpgenes.cl3$Row.names
+diffexpgenes.cl3$Row.names <- NULL
+
+fc <- diffexpgenes.cl3$avg_log2FC
+names(fc) <- diffexpgenes.cl3$ENTREZID
+fc <- sort(fc, decreasing = T)
+
+
+gse3 <- gseGO(geneList=fc, 
+             minGSSize = 5, 
+             maxGSSize = 800, 
+             OrgDb = "org.Mm.eg.db")
+
+write.csv2(gse3, "Results/gene set enrichment/gse3.csv")
+
+g3<- dotplot(gse3, showCategory=c("response to hypoxia", "cellular response to growth factor stimulus", "RNA metabolic process", "antigen processing and presentation of peptide antigen via MHC class II", "mononuclear cell proliferation"), split=".sign", font=14, title="Cluster T3") + facet_grid(.~.sign)+ scale_colour_gradientn(colours = c("red4", "cornflowerblue"))+theme(plot.title= element_text(size=20, colour = "#00008B")) 
+g3
+ggsave(paste0(dir,"/GSEAdot.select.cl3.png"), height=3.5, width=6.6, dpi=600)
+
+
+```
+
+
+```{r}
+#cluster 4
+
+eg = bitr(rownames(cl4.markers), fromType="SYMBOL", toType="ENTREZID", OrgDb="org.Mm.eg.db")
+eg <- subset(eg,!duplicated(eg$SYMBOL))
+row.names(eg) <- eg$SYMBOL
+eg$SYMBOL <- NULL
+diffexpgenes.cl4 <- merge(cl4.markers, eg, by = "row.names")
+rownames(diffexpgenes.cl4) <- diffexpgenes.cl4$Row.names
+diffexpgenes.cl4$Row.names <- NULL
+
+fc <- diffexpgenes.cl4$avg_log2FC
+names(fc) <- diffexpgenes.cl4$ENTREZID
+fc <- sort(fc, decreasing = T)
+
+
+gse4 <- gseGO(geneList=fc, 
+             minGSSize = 5, 
+             maxGSSize = 800, 
+             OrgDb = "org.Mm.eg.db")
+
+write.csv2(gse4, "Results/gene set enrichment/gse4.csv")
+
+g4<- dotplot(gse4, showCategory=c("MHC class II protein complex assembly",  "positive regulation of T-helper 1 type immune response", "antigen processing and presentation of exogenous antigen", "prostaglandin biosynthetic process", "toll-like receptor 4 signaling pathway", "mononuclear cell proliferation"), split=".sign", font=14, title="Cluster T4") + facet_grid(.~.sign)+ scale_colour_gradientn(colours = c("red4", "cornflowerblue"))+theme(plot.title= element_text(size=20, colour = "#efdf48")) 
+g4
+ggsave(paste0(dir,"/GSEAdot.select.cl4.png"), height=5, width=6.6, dpi=600)
+
+```
+
+```{r}
+#Cluster 5
+eg = bitr(rownames(cl5.markers), fromType="SYMBOL", toType="ENTREZID", OrgDb="org.Mm.eg.db")
+eg <- subset(eg,!duplicated(eg$SYMBOL))
+row.names(eg) <- eg$SYMBOL
+eg$SYMBOL <- NULL
+diffexpgenes.cl5 <- merge(cl5.markers, eg, by = "row.names")
+rownames(diffexpgenes.cl5) <- diffexpgenes.cl5$Row.names
+diffexpgenes.cl5$Row.names <- NULL
+
+fc <- diffexpgenes.cl5$avg_log2FC
+names(fc) <- diffexpgenes.cl5$ENTREZID
+fc <- sort(fc, decreasing = T)
+
+
+gse5 <- gseGO(geneList=fc, 
+             minGSSize = 5, 
+             maxGSSize = 800, 
+             OrgDb = "org.Mm.eg.db")
+
+write.csv2(gse5, "Results/gene set enrichment/gse5.csv")
+
+g5<- dotplot(gse5, showCategory=c("antibacterial humoral response", "oxidative phosphorylation", "skeletal muscle tissue development", "lymphocyte mediated immunity", "anatomical structure maturation","response to tumor necrosis factor", "T cell activation involved in immune response", "chemotaxis", "wound healing"), split=".sign", font=14, title="Cluster T5") + facet_grid(.~.sign)+ scale_colour_gradientn(colours = c("red4", "cornflowerblue"))+theme(plot.title= element_text(size=20, colour = "#f9a52c")) 
+g5
+ggsave(paste0(dir,"/GSEAdot.select.cl5.png"), height=3.5, width=6.6, dpi=600)
+```
+
+
+```{r}
+#cluster 6
+
+eg = bitr(rownames(cl6.markers), fromType="SYMBOL", toType="ENTREZID", OrgDb="org.Mm.eg.db")
+eg <- subset(eg,!duplicated(eg$SYMBOL))
+row.names(eg) <- eg$SYMBOL
+eg$SYMBOL <- NULL
+diffexpgenes.cl6 <- merge(cl6.markers, eg, by = "row.names")
+rownames(diffexpgenes.cl6) <- diffexpgenes.cl6$Row.names
+diffexpgenes.cl6$Row.names <- NULL
+
+fc <- diffexpgenes.cl6$avg_log2FC
+names(fc) <- diffexpgenes.cl6$ENTREZID
+fc <- sort(fc, decreasing = T)
+
+
+gse6 <- gseGO(geneList=fc, 
+             minGSSize = 5, 
+             maxGSSize = 800, 
+             OrgDb = "org.Mm.eg.db")
+
+write.csv2(gse6, "Results/gene set enrichment/gse6.csv")
+
+g6<- dotplot(gse6, showCategory=c("complement activation, classical pathway", "phagocytosis, recognition", "oxidative phosphorylation", "skeletal muscle cell differentiation", "pattern recognition receptor signaling pathway", "chemotaxis", "wound healing"), split=".sign", font=14, title="Cluster T6") + facet_grid(.~.sign)+ scale_colour_gradientn(colours = c("red4", "cornflowerblue"))+theme(plot.title= element_text(size=20, colour = "#9b5fe0")) 
+g6
+ggsave(paste0(dir,"/GSEAdot.select.cl6.png"), height=4, width=6.6, dpi=600)
+
+```
+
+
+```{r}
+#cluster 7
+
+eg = bitr(rownames(cl7.markers), fromType="SYMBOL", toType="ENTREZID", OrgDb="org.Mm.eg.db")
+eg <- subset(eg,!duplicated(eg$SYMBOL))
+row.names(eg) <- eg$SYMBOL
+eg$SYMBOL <- NULL
+diffexpgenes.cl7 <- merge(cl7.markers, eg, by = "row.names")
+rownames(diffexpgenes.cl7) <- diffexpgenes.cl7$Row.names
+diffexpgenes.cl7$Row.names <- NULL
+
+fc <- diffexpgenes.cl7$avg_log2FC
+names(fc) <- diffexpgenes.cl7$ENTREZID
+fc <- sort(fc, decreasing = T)
+
+
+gse7 <- gseGO(geneList=fc, 
+             minGSSize = 5, 
+             maxGSSize = 800, 
+             OrgDb = "org.Mm.eg.db")
+
+write.csv2(gse7, "Results/gene set enrichment/gse7.csv")
+
+g7<- dotplot(gse7, showCategory=c("acute inflammatory response", "lymphocyte mediated immunity", "anatomical structure maturation","pattern recognition receptor signaling pathway", "response to tumor necrosis factor", "T cell activation involved in immune response", "chemotaxis", "wound healing"), split=".sign", font=14, title="Cluster T7") + facet_grid(.~.sign)+ scale_colour_gradientn(colours = c("red4", "cornflowerblue"))+theme(plot.title= element_text(size=20, colour = "#6495ED")) 
+g7
+ggsave(paste0(dir,"/GSEAdot.select.cl7.png"), height=4, width=6.6, dpi=600)
+```
+
+```{r}
+#cluster 8
+
+eg = bitr(rownames(cl8.markers), fromType="SYMBOL", toType="ENTREZID", OrgDb="org.Mm.eg.db")
+eg <- subset(eg,!duplicated(eg$SYMBOL))
+row.names(eg) <- eg$SYMBOL
+eg$SYMBOL <- NULL
+diffexpgenes.cl8 <- merge(cl8.markers, eg, by = "row.names")
+rownames(diffexpgenes.cl8) <- diffexpgenes.cl8$Row.names
+diffexpgenes.cl8$Row.names <- NULL
+
+fc <- diffexpgenes.cl8$avg_log2FC
+names(fc) <- diffexpgenes.cl8$ENTREZID
+fc <- sort(fc, decreasing = T)
+
+gse8 <- gseGO(geneList=fc, 
+             minGSSize = 5, 
+             maxGSSize = 800, 
+             OrgDb = "org.Mm.eg.db")
+
+write.csv2(gse8, "Results/gene set enrichment/gse8.csv")
+
+g8<- dotplot(gse8, showCategory=c("mucosal immune response", "oxidative phosphorylation", "antigen processing and presentation of exogenous peptide antigen", "acute inflammatory response", "complement activation, classical pathway", "chronic inflammatory response", "interleukin-4 production", "positive regulation of T-helper 17 type immune response"), split=".sign", font=14, title="Cluster T8") + facet_grid(.~.sign)+ scale_colour_gradientn(colours = c("red4", "cornflowerblue"))+theme(plot.title= element_text(size=20, colour = "#216477")) 
+g8
+ggsave(paste0(dir,"/GSEAdot.select.cl8.png"), height=5.5, width=6.6, dpi=600)
+
+```
+
+
+```{r}
+g0+g1+g2+g3+g4+g5+g6+plot_layout(ncol = 1)
+ggsave(paste0(dir,"/GO terms-TX.png"), height=26, width=7, dpi=600)
+
+
+```
+
+
+
+
